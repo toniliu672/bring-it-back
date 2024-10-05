@@ -8,12 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      backgroundColor: {
+        background: 'hsl(var(--background) / <alpha-value>)',
+      },
+      textColor: {
+        foreground: 'hsl(var(--foreground) / <alpha-value>)',
       },
     },
   },
   plugins: [],
+  darkMode: 'class',
 };
+
 export default config;

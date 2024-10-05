@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model School {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  city            String
+  address         String
+  description     String?
+  studentCount    Int              @default(0)
+  graduateCount   Int              @default(0)
+  externalLinks   String[]
+  competencies    GraduateCompetency[]
+  concentrations  SchoolConcentration[]
+
+  @@map("schools")
+}
+
+model Occupation {
+  code            String           @id
+  name            String           @unique
+  competencies    OccupationCompetency[]
+
+  @@map("occupations")
+}
+
+model OccupationCompetency {
+  id             String       @id @default(uuid())
+  occupationCode String
+  unitCode       String?
+  name           String
+  standardCompetency String?   @db.VarChar(250) @default("")
+  occupation     Occupation   @relation(fields: [occupationCode], references: [code], onDelete: Cascade)
+  graduateCompetencies GraduateCompetency[]
+
+  @@map("occupation_competencies")
+}
+
+model GraduateCompetency {
+  schoolId       String
+  school         School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  competencyId   String
+  competency     OccupationCompetency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+
+  @@id([schoolId, competencyId])
+  @@map("graduate_competencies")
+}
+
+model Concentration {
+  id                   String                @id @default(uuid())
+  name                 String                @unique
+  schoolConcentrations SchoolConcentration[]
+
+  @@map("concentrations")
+}
+
+model SchoolConcentration {
+  schoolId        String
+  school          School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  concentrationId String
+  concentration   Concentration @relation(fields: [concentrationId], references: [id], onDelete: Cascade)
+
+  @@id([schoolId, concentrationId])
+  @@map("school_concentrations")
+}

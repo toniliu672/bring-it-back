@@ -1,0 +1,131 @@
+import React, { useRef } from "react";
+import { motion, useCycle } from "framer-motion";
+import { Button } from "@/components";
+import { SidebarProps } from "@/interfaces/componentsInterface";
+import { useDimensions } from "@/hooks/useDimentsion";
+import { useTheme } from "next-themes";
+
+const sidebar = {
+  open: (height = 1000) => ({
+    clipPath: `circle(${height * 2 + 200}px at calc(100% - 40px) 40px)`,
+    transition: {
+      type: "spring",
+      stiffness: 20,
+      restDelta: 2,
+    },
+  }),
+  closed: {
+    clipPath: "circle(30px at calc(100% - 40px) 40px)",
+    transition: {
+      delay: 0.5,
+      type: "spring",
+      stiffness: 400,
+      damping: 40,
+    },
+  },
+};
+
+const variants = {
+  open: {
+    transition: { staggerChildren: 0.07, delayChildren: 0.2 },
+  },
+  closed: {
+    transition: { staggerChildren: 0.05, staggerDirection: -1 },
+  },
+};
+
+const itemVariants = {
+  open: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      y: { stiffness: 1000, velocity: -100 },
+    },
+  },
+  closed: {
+    y: 50,
+    opacity: 0,
+    transition: {
+      y: { stiffness: 1000 },
+    },
+  },
+};
+
+const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
+  const [isOpen, toggleOpen] = useCycle(false, true);
+  const containerRef = useRef(null);
+  const { height } = useDimensions(containerRef);
+  const { theme } = useTheme();
+
+  return (
+    <motion.nav
+      initial={false}
+      animate={isOpen ? "open" : "closed"}
+      custom={height}
+      ref={containerRef}
+      className={`fixed top-0 right-0 bottom-0 w-[300px] md:w-[350px] ${className}`}
+    >
+      <motion.div
+        className={`absolute top-0 right-0 bottom-0 w-full ${
+          theme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-[#FFFFFF]'
+        }`}
+        variants={sidebar}
+      />
+      <motion.div className="relative h-full p-6 overflow-y-auto">
+        <motion.ul variants={variants}>
+          {React.Children.map(children, (child, i) => (
+            <motion.li
+              variants={itemVariants}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="mb-5 flex items-center cursor-pointer"
+            >
+              {child}
+            </motion.li>
+          ))}
+        </motion.ul>
+      </motion.div>
+      <Button
+        onClick={() => toggleOpen()}
+        className="absolute top-[18px] right-[15px] w-[50px] h-[50px] rounded-full bg-transparent"
+      >
+        <svg width="23" height="23" viewBox="0 0 23 23">
+          <Path
+            variants={{
+              closed: { d: "M 2 2.5 L 20 2.5" },
+              open: { d: "M 3 16.5 L 17 2.5" },
+            }}
+            stroke={theme === 'dark' ? "#FFFFFF" : "#2E2E2E"}
+          />
+          <Path
+            d="M 2 9.423 L 20 9.423"
+            variants={{
+              closed: { opacity: 1 },
+              open: { opacity: 0 },
+            }}
+            transition={{ duration: 0.1 }}
+            stroke={theme === 'dark' ? "#FFFFFF" : "#2E2E2E"}
+          />
+          <Path
+            variants={{
+              closed: { d: "M 2 16.346 L 20 16.346" },
+              open: { d: "M 3 2.5 L 17 16.346" },
+            }}
+            stroke={theme === 'dark' ? "#FFFFFF" : "#2E2E2E"}
+          />
+        </svg>
+      </Button>
+    </motion.nav>
+  );
+};
+
+const Path = (props: any) => (
+  <motion.path
+    fill="transparent"
+    strokeWidth="3"
+    strokeLinecap="round"
+    {...props}
+  />
+);
+
+export default Sidebar;
