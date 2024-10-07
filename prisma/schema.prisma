@@ -41,8 +41,9 @@ model School {
 }
 
 model Occupation {
-  code            String           @id
-  name            String           @unique
+  id              String           @id @default(uuid())
+  code            String           @unique
+  name            String
   competencies    OccupationCompetency[]
 
   @@map("occupations")
@@ -50,11 +51,11 @@ model Occupation {
 
 model OccupationCompetency {
   id             String       @id @default(uuid())
-  occupationCode String
+  occupationId   String
   unitCode       String?
   name           String
   standardCompetency String?   @db.VarChar(250) @default("")
-  occupation     Occupation   @relation(fields: [occupationCode], references: [code], onDelete: Cascade)
+  occupation     Occupation   @relation(fields: [occupationId], references: [id], onDelete: Cascade)
   graduateCompetencies GraduateCompetency[]
 
   @@map("occupation_competencies")
