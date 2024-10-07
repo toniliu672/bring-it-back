@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 
 const sidebar = {
   open: (height = 1000) => ({
-    clipPath: `circle(${height * 2 + 200}px at calc(100% - 40px) 40px)`,
+    clipPath: `circle(${height * 2 + 200}px at calc(100% - 29px) 29px)`,
     transition: {
       type: "spring",
       stiffness: 20,
@@ -15,7 +15,7 @@ const sidebar = {
     },
   }),
   closed: {
-    clipPath: "circle(30px at calc(100% - 40px) 40px)",
+    clipPath: "circle(20px at calc(100% - 30px) 30px)",
     transition: {
       delay: 0.5,
       type: "spring",
@@ -63,12 +63,14 @@ const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
       animate={isOpen ? "open" : "closed"}
       custom={height}
       ref={containerRef}
-      className={`fixed top-0 right-0 bottom-0 w-[300px] md:w-[350px] ${className}`}
+      className={`fixed top-[80px] right-4 bottom-4 w-[300px] md:w-[350px] ${className} ${
+        isOpen ? "pointer-events-auto" : "pointer-events-none"
+      }`}
     >
       <motion.div
-        className={`absolute top-0 right-0 bottom-0 w-full ${
-          theme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-[#FFFFFF]'
-        }`}
+        className={`absolute inset-0 ${
+          theme === "dark" ? "bg-[#1a1a1a]" : "bg-[#FFFFFF]"
+        } rounded-3xl shadow-lg`}
         variants={sidebar}
       />
       <motion.div className="relative h-full p-6 overflow-y-auto">
@@ -87,7 +89,11 @@ const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
       </motion.div>
       <Button
         onClick={() => toggleOpen()}
-        className="absolute top-[18px] right-[15px] w-[50px] h-[50px] rounded-full bg-transparent"
+        className={`absolute top-2 right-2 w-[50px] h-[50px] rounded-full ${
+          theme === "dark"
+            ? "bg-[#2E2E2E] text-white"
+            : "bg-white text-[#2E2E2E]"
+        } shadow-md pointer-events-auto z-10`}
       >
         <svg width="23" height="23" viewBox="0 0 23 23">
           <Path
@@ -95,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
               closed: { d: "M 2 2.5 L 20 2.5" },
               open: { d: "M 3 16.5 L 17 2.5" },
             }}
-            stroke={theme === 'dark' ? "#FFFFFF" : "#2E2E2E"}
+            stroke="currentColor"
           />
           <Path
             d="M 2 9.423 L 20 9.423"
@@ -104,14 +110,14 @@ const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
               open: { opacity: 0 },
             }}
             transition={{ duration: 0.1 }}
-            stroke={theme === 'dark' ? "#FFFFFF" : "#2E2E2E"}
+            stroke="currentColor"
           />
           <Path
             variants={{
               closed: { d: "M 2 16.346 L 20 16.346" },
               open: { d: "M 3 2.5 L 17 16.346" },
             }}
-            stroke={theme === 'dark' ? "#FFFFFF" : "#2E2E2E"}
+            stroke="currentColor"
           />
         </svg>
       </Button>

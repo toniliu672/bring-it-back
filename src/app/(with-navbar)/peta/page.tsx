@@ -8,6 +8,7 @@ import OSM from 'ol/source/OSM';
 import { fromLonLat } from 'ol/proj';
 import { boundingExtent } from 'ol/extent';
 import 'ol/ol.css';
+import { Sidebar, SearchBar } from "@/components";
 
 export default function PetaPage() {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -42,8 +43,13 @@ export default function PetaPage() {
   }, []);
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-screen relative">
       <div ref={mapRef} className="w-full h-full" />
+      <Sidebar className="z-40 top-8 bottom-20 max-h-full overflow-y-auto">
+        <SearchBar className="mt-20" onSearch={function (query: string): void {
+          throw new Error("Function not implemented.");
+        }} />
+      </Sidebar>
     </div>
   );
 }

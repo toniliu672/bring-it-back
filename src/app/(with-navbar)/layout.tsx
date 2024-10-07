@@ -22,7 +22,10 @@ export default function LayoutWithNavbar({
           dropdown: [
             { href: "/manage/occupations", label: "Manage Okupasi" },
             { href: "/manage/schools", label: "Manage Sekolah" },
-            { href: "/manage/competencyUnits", label: "Manage Unit Kompetensi" },
+            {
+              href: "/manage/competencyUnits",
+              label: "Manage Unit Kompetensi",
+            },
           ],
         },
       ];
@@ -41,9 +44,9 @@ export default function LayoutWithNavbar({
   };
 
   return (
-    <>
+    <div className="flex flex-col h-screen overflow-hidden">
       <Navbar logo="/logo.png" navItems={getNavItems()} />
       <main className="min-h-screen overflow-hidden">{children}</main>
-    </>
+    </div>
   );
 }

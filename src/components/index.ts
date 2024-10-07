@@ -1,3 +1,5 @@
+// components/index.ts
+
 // Animations
 export { default as FadeIn } from "./animations/FadeIn";
 export { default as RotateIn } from "./animations/RotateIn";
