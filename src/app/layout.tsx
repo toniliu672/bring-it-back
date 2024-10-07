@@ -25,19 +25,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black dark:bg-gray-900 dark:text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black dark:bg-gray-900 dark:text-white min-h-screen overflow-hidden`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {/* <Navbar
-            logo="/logo.png"
-            navItems={[
-              { href: "/", label: "Home" },
-              { href: "/about", label: "About" },
-            ]}
-          /> */}
           <SessionProvider>{children}</SessionProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

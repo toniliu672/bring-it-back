@@ -43,7 +43,7 @@ export default function LayoutWithNavbar({
   return (
     <>
       <Navbar logo="/logo.png" navItems={getNavItems()} />
-      <main>{children}</main>
+      <main className="min-h-screen overflow-hidden">{children}</main>
     </>
   );
 }

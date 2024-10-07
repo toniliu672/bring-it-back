@@ -28,9 +28,9 @@ export default function PetaLayout({
               <Loading size={60} className="p-4" />
             </div>
           ) : (
-            <div className="flex-1 relative">
-              <main className="absolute inset-0">{children}</main>
-              <Sidebar className="z-40 top-8 bottom-20 ">
+            <div className="flex-1 relative overflow-hidden">
+              <main className="absolute inset-0 overflow-hidden">{children}</main>
+              <Sidebar className="z-40 top-8 bottom-20 max-h-full overflow-y-auto">
                 {/* Sidebar content goes here */}
               </Sidebar>
             </div>
