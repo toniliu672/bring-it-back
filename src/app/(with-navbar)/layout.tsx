@@ -20,12 +20,12 @@ export default function LayoutWithNavbar({
         {
           label: "Manage Data",
           dropdown: [
-            { href: "/manage/occupations", label: "Manage Okupasi" },
-            { href: "/manage/schools", label: "Manage Sekolah" },
-            {
-              href: "/manage/competencyUnits",
-              label: "Manage Unit Kompetensi",
-            },
+            { href: "/manage/okupasi", label: "Manage Okupasi" },
+            { href: "/manage/sekolah", label: "Manage Sekolah" },
+            // {
+            //   href: "/manage/competencyUnits",
+            //   label: "Manage Unit Kompetensi",
+            // },
           ],
         },
       ];

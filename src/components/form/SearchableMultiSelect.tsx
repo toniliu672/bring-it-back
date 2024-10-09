@@ -1,14 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Option } from '@/interfaces/componentsInterface';
+import { SearchableMultiSelectProps } from '@/interfaces/componentsInterface';
 import { useTheme } from 'next-themes';
-
-interface SearchableMultiSelectProps {
-  options: Option[];
-  selectedValues: string[];
-  onChange: (selectedValues: string[]) => void;
-  label: string;
-  placeholder?: string;
-}
 
 const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
   options,

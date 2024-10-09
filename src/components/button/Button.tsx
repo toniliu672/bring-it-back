@@ -27,8 +27,8 @@ const Button: React.FC<ButtonProps> = ({
   
   const buttonStyles = twMerge(
     baseStyles,
-    variantStyles[variant],
-    sizeStyles[size],
+    variantStyles[variant as keyof typeof variantStyles],
+    sizeStyles[size as keyof typeof sizeStyles],
     widthStyle,
     className
   )

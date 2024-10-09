@@ -5,16 +5,16 @@ import {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
-import { MotionProps } from 'framer-motion'
+import { MotionProps } from "framer-motion";
 
 // Animations
 export interface BaseAnimationProps extends MotionProps {
-  children: React.ReactNode
-  duration?: number
-  delay?: number
+  children: React.ReactNode;
+  duration?: number;
+  delay?: number;
 }
 
-export type Direction = 'left' | 'right' | 'up' | 'down'
+export type Direction = "left" | "right" | "up" | "down";
 
 // Navbar
 export interface NavItem {
@@ -31,9 +31,12 @@ export interface NavbarProps {
 // Button
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "danger";
   size?: "small" | "medium" | "large";
   fullWidth?: boolean;
+  isLoading?: boolean;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 // Dropdown
@@ -59,9 +62,11 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  children: React.ReactNode;
-  buttons?: ModalButton[];
-  isDirty?: boolean;
+  children: ReactNode;
+  size?: "small" | "medium" | "large";
+  closeOnOverlayClick?: boolean;
+  closeOnEsc?: boolean;
+  footer?: ReactNode;
 }
 
 // Loading
@@ -72,7 +77,7 @@ export interface LoadingProps {
 
 // SpinnerLoading
 export interface SpinnerLoadingProps {
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
   color?: string;
 }
 
@@ -100,15 +105,15 @@ export interface PaginationProps {
 }
 
 // Table
-export interface Column {
+export interface Column<T = any> {
   header: string;
-  accessor: string;
-  cell?: (value: any, index: number) => React.ReactNode;
+  accessor: keyof T | ((row: T, index: number) => React.ReactNode);
+  cell?: (value: any, row: T, index: number) => React.ReactNode;
 }
 
-export interface TableProps {
-  data: any[];
-  columns: Column[];
+export interface TableProps<T = any> {
+  data: T[];
+  columns: Column<T>[];
   className?: string;
 }
 
@@ -128,6 +133,18 @@ export interface SearchBarNoButtonProps {
 }
 
 // SearchableMultiSelect
+export interface SearchableMultiSelectProps {
+  options: Option[];
+  selectedValues: string[];
+  onChange: (selectedValues: string[]) => void;
+  placeholder?: string;
+  label: string;
+  error?: string;
+  isLoading?: boolean;
+  onSearch?: (query: string) => void;
+  noOptionsMessage?: string;
+}
+
 export interface Option {
   value: string;
   label: string;
@@ -229,11 +246,13 @@ export interface DropdownItem {
   [key: string]: any;
 }
 
-export interface DropdownSearchProps {
-  fetchData: (searchTerm: string) => Promise<DropdownItem[]>;
-  onSelect: (item: DropdownItem) => void;
+export interface DropdownSearchProps<T = any> {
+  fetchData: (searchTerm: string) => Promise<T[]>;
+  onSelect: (item: T) => void;
   placeholder?: string;
-  labelKey?: string;
-  valueKey?: string;
+  labelKey?: keyof T;
+  valueKey?: keyof T;
   debounceTime?: number;
+  renderOption?: (item: T) => ReactNode;
+  isLoading?: boolean;
 }

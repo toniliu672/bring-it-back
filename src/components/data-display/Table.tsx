@@ -31,7 +31,7 @@ const Table: React.FC<TableProps> = ({ data, columns, className }) => {
               {columns.map((column, cellIndex) => (
                 <td key={cellIndex} className="px-6 py-4 whitespace-nowrap">
                   {column.cell
-                    ? column.cell(row[column.accessor as keyof typeof row], rowIndex)
+                    ? column.cell(row[column.accessor as keyof typeof row], rowIndex, cellIndex)
                     : row[column.accessor as keyof typeof row]}
                 </td>
               ))}

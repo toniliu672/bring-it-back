@@ -81,11 +81,11 @@ const DropdownSearch = ({
           ) : items.length > 0 ? (
             items.map((item, index) => (
               <li
-                key={item[valueKey] || index}
+                key={item[valueKey as string] || index}
                 onClick={() => handleSelectItem(item)}
                 className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer dark:text-white"
               >
-                {item[labelKey]}
+                {item[labelKey as string]}
               </li>
             ))
           ) : (
