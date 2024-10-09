@@ -1,6 +1,5 @@
 // src/interfaces/occupation.ts
 
-// Kita tetap mengimpor tipe Prisma untuk referensi
 import { Prisma } from '@prisma/client';
 
 export interface Occupation {
@@ -10,7 +9,6 @@ export interface Occupation {
   competencies?: OccupationCompetency[];
 }
 
-// Pastikan interface OccupationCompetency sudah ada
 export interface OccupationCompetency {
   id: string;
   occupationId: string;
@@ -26,7 +24,9 @@ export interface GetOccupationsParams {
   searchName?: string;
   sortBy?: 'code' | 'name';
   sortOrder?: 'asc' | 'desc';
+  searchQuery?: string; // Tambahkan baris ini
 }
+
 
 export interface GetOccupationsResponse {
   occupations: Occupation[];
@@ -38,24 +38,22 @@ export interface GetOccupationsResponse {
   };
 }
 
-// Buat interface yang sesuai dengan kebutuhan API kita
+// Tambahkan interface ini untuk menangani input kompetensi
+export interface CompetencyInput {
+  unitCode: string;
+  name: string;
+  standardCompetency: string;
+  [key: string]: string; // Ini menambahkan index signature
+}
+
 export interface CreateOccupationData {
   code: string;
   name: string;
-  competencies?: {
-    unitCode?: string;
-    name: string;
-    standardCompetency?: string;
-  }[];
+  competencies: CompetencyInput[];
 }
 
 export interface UpdateOccupationData {
   code?: string;
   name?: string;
-  competencies?: {
-    id?: string; // untuk update existing competency
-    unitCode?: string;
-    name?: string;
-    standardCompetency?: string;
-  }[];
+  competencies?: (CompetencyInput & { id?: string })[];
 }

@@ -1,6 +1,7 @@
+// src/app/(with-navbar/manage/okupasi/page.tsx)
 "use client";
 
-import { FC, useState, useEffect, useMemo } from "react";
+import { FC, useState, useEffect, useMemo, useCallback } from "react";
 import {
   Table,
   Button,
@@ -8,8 +9,9 @@ import {
   Pagination,
   Modal,
   TextInput,
-  SearchableMultiSelect,
   SpinnerLoading,
+  DynamicInput,
+  Notification
 } from "@/components";
 import {
   getOccupations,
@@ -22,8 +24,9 @@ import {
   Occupation,
   CreateOccupationData,
   UpdateOccupationData,
+  CompetencyInput,
 } from "@/interfaces/occupation";
-import { Option, Column } from "@/interfaces/componentsInterface";
+import { Column } from "@/interfaces/componentsInterface";
 import { useRouter } from "next/navigation";
 
 const OccupationPage: FC = () => {
@@ -31,64 +34,65 @@ const OccupationPage: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCompetencies, setSelectedCompetencies] = useState<string[]>(
-    []
-  );
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [competencyOptions, setCompetencyOptions] = useState<Option[]>([]);
+  const [competencyOptions, setCompetencyOptions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedOccupation, setSelectedOccupation] =
-    useState<Occupation | null>(null);
+  const [newCompetencies, setNewCompetencies] = useState<CompetencyInput[]>([]);
+  const [selectedOccupation, setSelectedOccupation] = useState<Occupation | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   const router = useRouter();
 
-  const addRowNumbers = (
-    data: Occupation[],
-    page: number,
-    limit: number
-  ): (Occupation & { rowNumber: number })[] => {
-    return data.map((item, index) => ({
-      ...item,
-      rowNumber: (page - 1) * limit + index + 1,
-    }));
-  };
+  const itemsPerPage = 10;
 
-  const fetchOccupations = async (page: number) => {
+  const fetchOccupations = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await getOccupations({ page, limit: 10 });
-      console.log("Fetched occupations:", response);
-      const processedOccupations = addRowNumbers(
-        response.occupations,
-        page,
-        10
-      );
-      setOccupations(processedOccupations);
-      setCurrentPage(response.meta.currentPage);
-      setTotalPages(response.meta.totalPages);
+      const response = await getOccupations({ page: 1, limit: 1000 });
+      setOccupations(response.occupations);
     } catch (err) {
       console.error("Error fetching occupations:", err);
       setError("Failed to fetch occupations. Please try again later.");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const fetchCompetencies = async () => {
-    // Implement this function in occupationService if available
-    // For now, we'll use an empty array
     setCompetencyOptions([]);
+  };
+
+  const handleAddOccupation = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const filteredCompetencies = filterEmptyCompetencies(newCompetencies);
+
+    const newOccupationData: CreateOccupationData = {
+      code: formData.get("code") as string,
+      name: formData.get("name") as string,
+      competencies: filteredCompetencies,
+    };
+
+    try {
+      await createOccupation(newOccupationData);
+      setIsModalOpen(false);
+      setNewCompetencies([]);
+      fetchOccupations();
+      setNotification({ type: 'success', message: `Okupasi "${newOccupationData.name}" berhasil ditambahkan` });
+    } catch (err) {
+      console.error("Failed to create occupation:", err);
+      setNotification({ type: 'error', message: "Gagal menambahkan okupasi. Silakan coba lagi." });
+    }
   };
 
   const handleViewOccupation = async (id: string) => {
     try {
       const occupation = await getOccupation(id);
-      console.log("Fetched occupation:", occupation); // Tambahkan log ini
+      console.log("Fetched occupation:", occupation);
       setSelectedOccupation(occupation);
       setIsViewModalOpen(true);
     } catch (err) {
@@ -108,13 +112,11 @@ const OccupationPage: FC = () => {
     }
   };
 
-  const handleUpdateOccupation = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleUpdateOccupation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedOccupation) {
       console.error("No occupation selected for update");
-      setError("No occupation selected for update");
+      setNotification({ type: 'error', message: "Tidak ada okupasi yang dipilih untuk diperbarui" });
       return;
     }
 
@@ -122,7 +124,7 @@ const OccupationPage: FC = () => {
     const updatedData: UpdateOccupationData = {
       code: formData.get("code") as string,
       name: formData.get("name") as string,
-      competencies: [], // Tambahkan ini jika diperlukan
+      competencies: [],
     };
 
     try {
@@ -130,13 +132,13 @@ const OccupationPage: FC = () => {
       if (!selectedOccupation.id) {
         throw new Error("Invalid occupation ID");
       }
-      const result = await updateOccupation(selectedOccupation.id, updatedData);
-      console.log("Update result:", result);
+      await updateOccupation(selectedOccupation.id, updatedData);
       setIsEditModalOpen(false);
-      fetchOccupations(currentPage);
+      fetchOccupations();
+      setNotification({ type: 'success', message: `Okupasi "${updatedData.name}" berhasil diperbarui` });
     } catch (err) {
       console.error("Failed to update occupation:", err);
-      setError("Failed to update occupation. Please try again.");
+      setNotification({ type: 'error', message: "Gagal memperbarui okupasi. Silakan coba lagi." });
     }
   };
 
@@ -151,33 +153,55 @@ const OccupationPage: FC = () => {
     try {
       await deleteOccupation(selectedOccupation.id);
       setIsDeleteModalOpen(false);
-      fetchOccupations(currentPage);
+      fetchOccupations();
+      setNotification({ type: 'success', message: `Okupasi "${selectedOccupation.name}" berhasil dihapus` });
     } catch (err) {
       console.error("Failed to delete occupation:", err);
-      setError("Failed to delete occupation. Please try again.");
+      setNotification({ type: 'error', message: "Gagal menghapus okupasi. Silakan coba lagi." });
     }
   };
 
   useEffect(() => {
-    fetchOccupations(currentPage);
+    fetchOccupations();
     fetchCompetencies();
-  }, [currentPage]);
+  }, [fetchOccupations]);
 
-  const filteredAndNumberedOccupations = useMemo(() => {
-    const filtered = occupations.filter(
+  const filteredOccupations = useMemo(() => {
+    return occupations.filter(
       (occupation) =>
         occupation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         occupation.code.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    return filtered.map((item, index) => ({
-      ...item,
-      rowNumber: index + 1,
-    }));
   }, [occupations, searchQuery]);
 
-  const columns: Column<
-    Occupation & { rowNumber: number; displayNumber: number }
-  >[] = [
+  const totalPages = Math.ceil(filteredOccupations.length / itemsPerPage);
+
+  const paginatedOccupations = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredOccupations
+      .slice(startIndex, startIndex + itemsPerPage)
+      .map((item, index) => ({
+        ...item,
+        rowNumber: startIndex + index + 1,
+      }));
+  }, [filteredOccupations, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const columns: Column<Occupation & { rowNumber: number }>[] = [
     {
       header: "NO",
       accessor: "rowNumber",
@@ -217,35 +241,13 @@ const OccupationPage: FC = () => {
     },
   ];
 
-  const handleAddOccupation = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const newOccupationData: CreateOccupationData = {
-      code: formData.get("code") as string,
-      name: formData.get("name") as string,
-      competencies: selectedCompetencies.map((value) => {
-        const option = competencyOptions.find((opt) => opt.value === value);
-        return {
-          name: option ? option.label : "",
-          unitCode: value,
-        };
-      }),
-    };
-
-    try {
-      await createOccupation(newOccupationData);
-      setIsModalOpen(false);
-      setSelectedCompetencies([]);
-      fetchOccupations(currentPage); // Refresh the list
-    } catch (err) {
-      console.error("Failed to create occupation:", err);
-      setError("Failed to create occupation. Please try again.");
-    }
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
+  const filterEmptyCompetencies = (competencies: CompetencyInput[]): CompetencyInput[] => {
+    return competencies.filter(
+      (comp) =>
+        comp.unitCode.trim() !== "" ||
+        comp.name.trim() !== "" ||
+        (comp.standardCompetency && comp.standardCompetency.trim() !== "")
+    );
   };
 
   if (isLoading) {
@@ -257,7 +259,14 @@ const OccupationPage: FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 min-h-full">
+            {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
       <h1 className="text-2xl font-bold mb-4">Daftar Okupasi</h1>
       <div className="mb-4 flex justify-between items-center">
         <SearchBarNoButton
@@ -267,10 +276,8 @@ const OccupationPage: FC = () => {
         />
         <Button onClick={() => setIsModalOpen(true)}>Tambah Okupasi</Button>
       </div>
-      {isLoading ? (
-        <SpinnerLoading />
-      ) : filteredAndNumberedOccupations.length > 0 ? (
-        <Table data={filteredAndNumberedOccupations} columns={columns} />
+      {paginatedOccupations.length > 0 ? (
+        <Table data={paginatedOccupations} columns={columns} />
       ) : (
         <div className="text-center py-4">Tidak ada data okupasi</div>
       )}
@@ -279,10 +286,7 @@ const OccupationPage: FC = () => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={(page) => {
-              setCurrentPage(page);
-              fetchOccupations(page);
-            }}
+            onPageChange={handlePageChange}
           />
         </div>
       )}
@@ -291,7 +295,7 @@ const OccupationPage: FC = () => {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setSelectedCompetencies([]);
+          setNewCompetencies([]);
         }}
         title="Tambah Okupasi Baru"
       >
@@ -308,12 +312,29 @@ const OccupationPage: FC = () => {
             placeholder="Masukkan nama okupasi"
             required
           />
-          <SearchableMultiSelect
-            options={competencyOptions}
-            selectedValues={selectedCompetencies}
-            onChange={setSelectedCompetencies}
-            placeholder="Pilih kompetensi"
+          <DynamicInput<CompetencyInput>
             label="Kompetensi"
+            values={newCompetencies}
+            onChange={setNewCompetencies}
+            fields={[
+              {
+                name: "unitCode",
+                label: "Unit Code",
+                placeholder: "Masukkan unit code",
+              },
+              {
+                name: "name",
+                label: "Nama Kompetensi",
+                placeholder: "Masukkan nama kompetensi",
+              },
+              {
+                name: "standardCompetency",
+                label: "Kompetensi Standar",
+                placeholder: "Masukkan kompetensi standar",
+              },
+            ]}
+            addButtonText="Tambah Kompetensi Baru"
+            removeButtonText="Hapus"
           />
           <div className="flex justify-end space-x-2">
             <Button
@@ -321,7 +342,7 @@ const OccupationPage: FC = () => {
               variant="outline"
               onClick={() => {
                 setIsModalOpen(false);
-                setSelectedCompetencies([]);
+                setNewCompetencies([]);
               }}
             >
               Batal
@@ -331,7 +352,6 @@ const OccupationPage: FC = () => {
         </form>
       </Modal>
 
-      {/* View Modal */}
       <Modal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
@@ -364,7 +384,6 @@ const OccupationPage: FC = () => {
         )}
       </Modal>
 
-      {/* Edit Modal */}
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -384,7 +403,6 @@ const OccupationPage: FC = () => {
               defaultValue={selectedOccupation.name}
               required
             />
-            {/* Tambahkan field lain sesuai kebutuhan */}
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -399,7 +417,6 @@ const OccupationPage: FC = () => {
         )}
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

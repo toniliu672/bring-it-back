@@ -1,8 +1,9 @@
+// src/app/(with-navbar/manage/okupasi/[id]/kompetensi/page.tsx)
 "use client";
 
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Table, Button, Modal, TextInput, SpinnerLoading } from "@/components";
+import { Table, Button, Modal, TextInput, SpinnerLoading, SearchBarNoButton, Pagination, Notification } from "@/components";
 import { getOccupation } from "@/services/occupationService";
 import {
   getCompetencies,
@@ -21,17 +22,15 @@ const OccupationCompetenciesPage: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCompetency, setSelectedCompetency] =
-    useState<OccupationCompetency | null>(null);
+  const [selectedCompetency, setSelectedCompetency] = useState<OccupationCompetency | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
-  useEffect(() => {
-    if (id) {
-      fetchOccupationData();
-    }
-  }, [id]);
+  const itemsPerPage = 10;
 
-  const fetchOccupationData = async () => {
+  const fetchOccupationData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -45,7 +44,49 @@ const OccupationCompetenciesPage: FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      fetchOccupationData();
+    }
+  }, [id, fetchOccupationData]);
+
+  const filteredCompetencies = useMemo(() => {
+    return competencies.filter(
+      (competency) =>
+        competency.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (competency.unitCode && competency.unitCode.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (competency.standardCompetency && competency.standardCompetency.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [competencies, searchQuery]);
+
+  const totalPages = Math.ceil(filteredCompetencies.length / itemsPerPage);
+
+  const paginatedCompetencies = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredCompetencies
+      .slice(startIndex, startIndex + itemsPerPage)
+      .map((item, index) => ({
+        ...item,
+        index: startIndex + index,
+      }));
+  }, [filteredCompetencies, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
 
   const columns: Column<OccupationCompetency & { index: number }>[] = [
     {
@@ -96,16 +137,15 @@ const OccupationCompetenciesPage: FC = () => {
       try {
         await deleteCompetency(occupation!.id, competencyId);
         fetchOccupationData();
+        setNotification({ type: 'success', message: 'Kompetensi berhasil dihapus' });
       } catch (err) {
         console.error("Error deleting competency:", err);
-        setError("Failed to delete competency. Please try again.");
+        setNotification({ type: 'error', message: 'Gagal menghapus kompetensi. Silakan coba lagi.' });
       }
     }
   };
 
-  const handleSubmitCompetency = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmitCompetency = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const competencyData = {
@@ -116,19 +156,17 @@ const OccupationCompetenciesPage: FC = () => {
 
     try {
       if (isEditMode && selectedCompetency) {
-        await updateCompetency(
-          occupation!.id,
-          selectedCompetency.id,
-          competencyData
-        );
+        await updateCompetency(occupation!.id, selectedCompetency.id, competencyData);
+        setNotification({ type: 'success', message: `Kompetensi "${competencyData.name}" berhasil diperbarui` });
       } else {
         await createCompetency(occupation!.id, competencyData);
+        setNotification({ type: 'success', message: `Kompetensi "${competencyData.name}" berhasil ditambahkan` });
       }
       setIsModalOpen(false);
       fetchOccupationData();
     } catch (err) {
       console.error("Error submitting competency:", err);
-      setError("Failed to submit competency. Please try again.");
+      setNotification({ type: 'error', message: 'Gagal menyimpan kompetensi. Silakan coba lagi.' });
     }
   };
 
@@ -146,20 +184,43 @@ const OccupationCompetenciesPage: FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <Button className="my-5 bg-slate-500 hover:bg-slate-700" onClick={handleBack}>Kembali</Button>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">
-          Kompetensi untuk Okupasi: {occupation?.name}
-        </h1>
-      </div>
-      <Button onClick={handleAddCompetency} className="mb-4">
-        Tambah Kompetensi
+      {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      <Button className="my-5 bg-slate-500 hover:bg-slate-700" onClick={handleBack}>
+        Kembali
       </Button>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Kompetensi untuk Okupasi: {occupation?.name}</h1>
+      </div>
+      <div className="mb-4 flex justify-between items-center">
+        <SearchBarNoButton
+          onSearch={handleSearch}
+          placeholder="Cari kompetensi..."
+          initialValue={searchQuery}
+        />
+        <Button onClick={handleAddCompetency}>Tambah Kompetensi</Button>
+      </div>
 
-      <Table
-        data={competencies.map((comp, index) => ({ ...comp, index }))}
-        columns={columns}
-      />
+      {paginatedCompetencies.length > 0 ? (
+        <Table data={paginatedCompetencies} columns={columns} />
+      ) : (
+        <div className="text-center py-4">Tidak ada data kompetensi</div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
 
       <Modal
         isOpen={isModalOpen}
@@ -185,16 +246,10 @@ const OccupationCompetenciesPage: FC = () => {
             defaultValue={selectedCompetency?.standardCompetency || ""}
           />
           <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsModalOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Batal
             </Button>
-            <Button type="submit">
-              {isEditMode ? "Simpan Perubahan" : "Tambah"}
-            </Button>
+            <Button type="submit">{isEditMode ? "Simpan Perubahan" : "Tambah"}</Button>
           </div>
         </form>
       </Modal>
