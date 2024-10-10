@@ -197,11 +197,11 @@ export default function PetaPage() {
       <p className="text-sm">
         <strong>Alamat:</strong> {school.address}
       </p>
-      {school.description && (
+      {/* {school.description && (
         <p className="text-sm">
           <strong>Deskripsi:</strong> {school.description}
         </p>
-      )}
+      )} */}
       <p className="text-sm">
         <strong>Jumlah Siswa:</strong> {school.studentCount}
       </p>
@@ -231,12 +231,12 @@ export default function PetaPage() {
           )
         )}
       </ul>
-      <p className="text-sm">
+      {/* <p className="text-sm">
         <strong>Kompetensi yang Sesuai:</strong> {school.matchingCompetencies}
       </p>
       <p className="text-sm">
         <strong>Total Kompetensi:</strong> {school.totalCompetencies}
-      </p>
+      </p> */}
       <p className="text-sm">
         <strong>Persentase:</strong> {school.percentage}%
       </p>

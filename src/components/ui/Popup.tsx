@@ -25,7 +25,7 @@ const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
       <p className="text-sm mb-1"><strong>Jumlah Siswa:</strong> {school.studentCount}</p>
       <p className="text-sm mb-1"><strong>Jumlah Lulusan:</strong> {school.graduateCount}</p>
       <p className="text-sm mb-1"><strong>Kompetensi yang Sesuai:</strong> {school.matchingCompetencies}</p>
-      <p className="text-sm mb-1"><strong>Total Kompetensi:</strong> {school.totalCompetencies}</p>
+      {/* <p className="text-sm mb-1"><strong>Total Kompetensi:</strong> {school.totalCompetencies}</p> */}
       <div className="mt-2">
         <strong className="text-sm">Persentase Kecocokan:</strong>
         <div className={`w-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-2.5 mt-1`}>
@@ -60,11 +60,11 @@ const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
           ))}
         </ul>
       </div>
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <Button size="small" onClick={() => window.open(`/sekolah/${school.id}`, '_blank')}>
           Lihat Detail Sekolah
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

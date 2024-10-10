@@ -78,19 +78,35 @@ export const PUT = withAuth(
           graduateCount,
           externalLinks,
           competencies: {
-            deleteMany: {},
-            create: competencies?.map((comp: any) => ({
-              competency: {
-                connect: { id: comp.id },
+            upsert: competencies?.map((comp: any) => ({
+              where: {
+                schoolId_competencyId: {
+                  schoolId: id,
+                  competencyId: comp.id,
+                },
               },
+              create: {
+                competency: {
+                  connect: { id: comp.id },
+                },
+              },
+              update: {}, // Tidak ada yang perlu diupdate untuk relasi yang sudah ada
             })),
           },
           concentrations: {
-            deleteMany: {},
-            create: concentrations?.map((conc: any) => ({
-              concentration: {
-                connect: { id: conc.id },
+            upsert: concentrations?.map((conc: any) => ({
+              where: {
+                schoolId_concentrationId: {
+                  schoolId: id,
+                  concentrationId: conc.id,
+                },
               },
+              create: {
+                concentration: {
+                  connect: { id: conc.id },
+                },
+              },
+              update: {}, // Tidak ada yang perlu diupdate untuk relasi yang sudah ada
             })),
           },
         },

@@ -17,6 +17,7 @@ import {
   getSchool,
   updateSchool,
   deleteSchool,
+  getSchoolCompetencies,
 } from "@/services/schoolService";
 import {
   School,
@@ -95,7 +96,8 @@ const SchoolPage: FC = () => {
   const handleViewSchool = async (id: string) => {
     try {
       const school = await getSchool(id);
-      setSelectedSchool(school);
+      const competencies = await getSchoolCompetencies(id);
+      setSelectedSchool({ ...school, competencies });
       setIsViewModalOpen(true);
     } catch (err) {
       console.error("Error fetching school details:", err);
@@ -250,7 +252,9 @@ const SchoolPage: FC = () => {
           </Button>
           <Button
             size="small"
-            onClick={() => router.push(`/manage/sekolah/${value}/unit-kompetensi`)}
+            onClick={() =>
+              router.push(`/manage/sekolah/${value}/unit-kompetensi`)
+            }
           >
             Unit Kompetensi
           </Button>
@@ -369,7 +373,7 @@ const SchoolPage: FC = () => {
         title="Detail Sekolah"
       >
         {selectedSchool && (
-          <div>
+          <div className="space-y-4">
             <p>
               <strong>Nama:</strong> {selectedSchool.name}
             </p>
@@ -389,9 +393,37 @@ const SchoolPage: FC = () => {
               <strong>Jumlah Lulusan:</strong> {selectedSchool.graduateCount}
             </p>
             <p>
-              <strong>Link Eksternal:</strong>{" "}
-              {selectedSchool.externalLinks.join(", ")}
+              <strong>Link Eksternal:</strong>
             </p>
+            <ul className="list-disc list-inside">
+              {selectedSchool.externalLinks.map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p>
+              <strong>Kompetensi:</strong>
+            </p>
+            {selectedSchool.competencies &&
+            selectedSchool.competencies.length > 0 ? (
+              <ul className="list-disc list-inside">
+                {selectedSchool.competencies.map((comp, index) => (
+                  <li key={index}>
+                    {comp.competency.unitCode} - {comp.competency.name}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Tidak ada data kompetensi</p>
+            )}
           </div>
         )}
       </Modal>

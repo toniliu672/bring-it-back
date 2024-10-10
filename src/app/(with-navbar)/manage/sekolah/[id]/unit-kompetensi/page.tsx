@@ -31,7 +31,7 @@ const SchoolCompetenciesPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isCompetencyModalOpen, setIsCompetencyModalOpen] = useState(false);
   const [selectedOccupation, setSelectedOccupation] = useState<string>("");
-  const [selectedCompetency, setSelectedCompetency] = useState<string>("");
+  const [selectedCompetency, setSelectedCompetency] = useState<string>("default");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [notification, setNotification] = useState<{
@@ -66,6 +66,14 @@ const SchoolCompetenciesPage: FC = () => {
 
   const handleAddCompetency = async () => {
     try {
+      if (selectedCompetency === "default") {
+        setNotification({
+          type: "error",
+          message: "Silakan pilih unit kompetensi yang valid.",
+        });
+        return;
+      }
+
       if (schoolCompetencies.some(comp => comp.competencyId === selectedCompetency)) {
         setNotification({
           type: "error",
@@ -83,7 +91,7 @@ const SchoolCompetenciesPage: FC = () => {
         message: "Kompetensi berhasil ditambahkan",
       });
       setSelectedOccupation("");
-      setSelectedCompetency("");
+      setSelectedCompetency("default");
     } catch (err) {
       setNotification({
         type: "error",
@@ -233,7 +241,7 @@ const SchoolCompetenciesPage: FC = () => {
         onClose={() => {
           setIsCompetencyModalOpen(false);
           setSelectedOccupation("");
-          setSelectedCompetency("");
+          setSelectedCompetency("default");
         }}
         title="Tambah Unit Kompetensi"
       >
@@ -253,16 +261,19 @@ const SchoolCompetenciesPage: FC = () => {
             value={selectedOccupation}
             onChange={(e) => {
               setSelectedOccupation(e.target.value);
-              setSelectedCompetency("");
+              setSelectedCompetency("default");
             }}
           />
           {selectedOccupation && (
             <Select
               label="Pilih Unit Kompetensi"
-              options={availableCompetencies.map((comp) => ({
-                value: comp.id,
-                label: `${comp.unitCode} - ${comp.name}`,
-              }))}
+              options={[
+                { value: "default", label: "Pilih Unit Kompetensi" },
+                ...availableCompetencies.map((comp) => ({
+                  value: comp.id,
+                  label: `${comp.unitCode} - ${comp.name}`,
+                }))
+              ]}
               value={selectedCompetency}
               onChange={(e) => setSelectedCompetency(e.target.value)}
             />
@@ -274,12 +285,12 @@ const SchoolCompetenciesPage: FC = () => {
               onClick={() => {
                 setIsCompetencyModalOpen(false);
                 setSelectedOccupation("");
-                setSelectedCompetency("");
+                setSelectedCompetency("default");
               }}
             >
               Batal
             </Button>
-            <Button type="submit" disabled={!selectedCompetency}>
+            <Button type="submit" disabled={!selectedCompetency || selectedCompetency === "default"}>
               Tambah
             </Button>
           </div>
