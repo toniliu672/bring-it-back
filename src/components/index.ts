@@ -34,6 +34,7 @@ export { default as Modal } from "./feedback/Modal";
 export { default as Notification } from "./feedback/Notification";
 export { default as Skeleton } from "./feedback/Skeleton";
 export { default as SpinnerLoading } from "./feedback/SpinnerLoading";
+export {default as AutoComplete} from "./feedback/AutoComplete"
 
 // HOC
 export { default as ErrorBoundary } from "./hoc/ErrorBoundary";

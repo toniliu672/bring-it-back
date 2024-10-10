@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { motion, useCycle } from "framer-motion";
+import { AnimatePresence, motion, useCycle } from "framer-motion";
 import { Button } from "@/components";
 import { SidebarProps } from "@/interfaces/componentsInterface";
 import { useDimensions } from "@/hooks/useDimentsion";
@@ -73,19 +73,24 @@ const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
         } rounded-3xl shadow-lg`}
         variants={sidebar}
       />
-      <motion.div className="relative h-full p-6 overflow-y-auto">
-        <motion.ul variants={variants}>
-          {React.Children.map(children, (child, i) => (
-            <motion.li
-              variants={itemVariants}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="mb-5 flex items-center cursor-pointer"
+      <motion.div
+        className={`relative h-full ${
+          isOpen ? "overflow-y-auto" : "overflow-hidden"
+        }`}
+      >
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              variants={variants}
+              initial="closed"
+              animate="open"
+              exit="closed"
+              className="p-6 space-y-4"
             >
-              {child}
-            </motion.li>
-          ))}
-        </motion.ul>
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
       <Button
         onClick={() => toggleOpen()}

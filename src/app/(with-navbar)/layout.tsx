@@ -13,7 +13,11 @@ export default function LayoutWithNavbar({
   const { data: session, status } = useSession();
 
   const getNavItems = (): NavItem[] => {
-    const baseItems: NavItem[] = [{ href: "/", label: "Home" }];
+    const baseItems: NavItem[] = [
+      { href: "/", label: "Home" },
+      { href: "/peta", label: "Map" }
+
+    ];
 
     if (status === "authenticated" && session?.user) {
       const userItems: NavItem[] = [
@@ -22,10 +26,6 @@ export default function LayoutWithNavbar({
           dropdown: [
             { href: "/manage/okupasi", label: "Manage Okupasi" },
             { href: "/manage/sekolah", label: "Manage Sekolah" },
-            // {
-            //   href: "/manage/competencyUnits",
-            //   label: "Manage Unit Kompetensi",
-            // },
           ],
         },
       ];

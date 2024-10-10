@@ -1,0 +1,1 @@
+export const MARKER_ICON_URL = '/marker-icon.png';
