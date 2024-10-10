@@ -19,6 +19,7 @@ import {
   Pagination,
   SpinnerLoading,
   AutoComplete,
+  Popup,
 } from "@/components";
 import { fetchSchoolStats } from "@/services/schoolStatsService";
 import {
@@ -28,6 +29,8 @@ import {
 } from "@/interfaces/schoolStats";
 import { getGeocoding } from "@/utils/geocoding";
 import { MARKER_ICON_URL } from "@/constants/images";
+import Overlay from "ol/Overlay";
+import ReactDOM from "react-dom";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -105,7 +108,7 @@ export default function PetaPage() {
       const location = await getGeocoding(address);
 
       if (location) {
-        addMarkerToMap(location.lat, location.lon, school.name);
+        addMarkerToMap(location.lat, location.lon, school);
       } else {
         setError("Lokasi tidak valid atau tidak ditemukan.");
       }
@@ -117,10 +120,10 @@ export default function PetaPage() {
     }
   };
 
-  const addMarkerToMap = (lat: number, lon: number, schoolName: string) => {
+  const addMarkerToMap = (lat: number, lon: number, school: School) => {
     if (!map) return;
 
-    // Remove existing markers
+    // Remove existing markers and overlays
     const layers = map.getLayers().getArray();
     const vectorLayer = layers.find((layer) => layer instanceof VectorLayer) as
       | VectorLayer<VectorSource>
@@ -128,6 +131,7 @@ export default function PetaPage() {
     if (vectorLayer) {
       map.removeLayer(vectorLayer);
     }
+    map.getOverlays().clear();
 
     const marker = new Feature({
       geometry: new Point(fromLonLat([lon, lat])),
@@ -137,7 +141,7 @@ export default function PetaPage() {
       image: new Icon({
         anchor: [0.5, 1],
         src: MARKER_ICON_URL,
-        scale: 0.1, // Mengubah ukuran marker menjadi setengah dari ukuran aslinya
+        scale: 0.1,
       }),
     });
 
@@ -154,6 +158,30 @@ export default function PetaPage() {
     map.addLayer(newVectorLayer);
     map.getView().setCenter(fromLonLat([lon, lat]));
     map.getView().setZoom(15);
+
+    // Create popup overlay
+    const popupElement = document.createElement('div');
+    const popup = new Overlay({
+      element: popupElement,
+      positioning: 'bottom-center',
+      stopEvent: false,
+      offset: [0, -20],
+    });
+    map.addOverlay(popup);
+
+    // Show popup on click
+    map.on('click', (evt) => {
+      const feature = map.forEachFeatureAtPixel(evt.pixel, (feature) => feature);
+      if (feature === marker) {
+        popup.setPosition(evt.coordinate);
+        ReactDOM.render(
+          <Popup school={school} onClose={() => popup.setPosition(undefined)} />,
+          popupElement
+        );
+      } else {
+        popup.setPosition(undefined);
+      }
+    });
   };
 
   const renderSchoolCard = (school: School, index: number) => (
