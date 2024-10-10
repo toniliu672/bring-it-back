@@ -6,24 +6,25 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 function SessionCheck() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (session) {
+    if (status === "authenticated" && session) {
       const expiryDate = new Date(session.expires);
-      const checkSession = () => {
-        if (expiryDate < new Date()) {
-          alert("Your session has expired. Please log in again.");
-          signOut({ callbackUrl: '/login' });
-        }
-      };
 
-      const interval = setInterval(checkSession, 60000); // Check every minute
-
-      return () => clearInterval(interval);
+      // Check if the session is already expired
+      if (expiryDate < new Date()) {
+        alert("Your session has expired. Please log in again.");
+        signOut({ callbackUrl: '/login' });
+      }
     }
-  }, [session, router]);
+
+    // Jika statusnya 'unauthenticated', redirect ke halaman login.
+    if (status === "unauthenticated") {
+      router.push('/login');
+    }
+  }, [status, session, router]);
 
   return null;
 }
