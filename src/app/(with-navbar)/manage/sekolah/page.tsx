@@ -1,4 +1,3 @@
-// src/app/(with-navbar)/manage/sekolah/page.tsx
 "use client";
 
 import { FC, useState, useEffect, useMemo, useCallback } from "react";
@@ -10,7 +9,7 @@ import {
   Modal,
   TextInput,
   SpinnerLoading,
-  Notification
+  Notification,
 } from "@/components";
 import {
   getSchools,
@@ -19,8 +18,13 @@ import {
   updateSchool,
   deleteSchool,
 } from "@/services/schoolService";
-import { School, CreateSchoolData, UpdateSchoolData } from "@/interfaces/school";
+import {
+  School,
+  CreateSchoolData,
+  UpdateSchoolData,
+} from "@/interfaces/school";
 import { Column } from "@/interfaces/componentsInterface";
+import { useRouter } from "next/navigation";
 
 const SchoolPage: FC = () => {
   const [schools, setSchools] = useState<School[]>([]);
@@ -33,7 +37,12 @@ const SchoolPage: FC = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const router = useRouter();
 
   const itemsPerPage = 10;
 
@@ -54,22 +63,32 @@ const SchoolPage: FC = () => {
   const handleAddSchool = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
     const newSchoolData: CreateSchoolData = {
       name: formData.get("name") as string,
       city: formData.get("city") as string,
       address: formData.get("address") as string,
-      description: formData.get("description") as string || undefined,
+      description: formData.get("description") as string,
+      studentCount: parseInt(formData.get("studentCount") as string),
+      graduateCount: parseInt(formData.get("graduateCount") as string),
+      externalLinks: (formData.get("externalLinks") as string)
+        .split(",")
+        .map((link) => link.trim()),
     };
 
     try {
       await createSchool(newSchoolData);
       setIsModalOpen(false);
       fetchSchools();
-      setNotification({ type: 'success', message: `Sekolah "${newSchoolData.name}" berhasil ditambahkan` });
+      setNotification({
+        type: "success",
+        message: `Sekolah "${newSchoolData.name}" berhasil ditambahkan`,
+      });
     } catch (err) {
       console.error("Failed to create school:", err);
-      setNotification({ type: 'error', message: "Gagal menambahkan sekolah. Silakan coba lagi." });
+      setNotification({
+        type: "error",
+        message: "Gagal menambahkan sekolah. Silakan coba lagi.",
+      });
     }
   };
 
@@ -99,7 +118,10 @@ const SchoolPage: FC = () => {
     e.preventDefault();
     if (!selectedSchool) {
       console.error("No school selected for update");
-      setNotification({ type: 'error', message: "Tidak ada sekolah yang dipilih untuk diperbarui" });
+      setNotification({
+        type: "error",
+        message: "Tidak ada sekolah yang dipilih untuk diperbarui",
+      });
       return;
     }
 
@@ -108,22 +130,33 @@ const SchoolPage: FC = () => {
       name: formData.get("name") as string,
       city: formData.get("city") as string,
       address: formData.get("address") as string,
-      description: formData.get("description") as string || undefined,
+      description: formData.get("description") as string,
+      studentCount: parseInt(formData.get("studentCount") as string),
+      graduateCount: parseInt(formData.get("graduateCount") as string),
+      externalLinks: (formData.get("externalLinks") as string)
+        .split(",")
+        .map((link) => link.trim()),
     };
 
     try {
       await updateSchool(selectedSchool.id, updatedData);
       setIsEditModalOpen(false);
       fetchSchools();
-      setNotification({ type: 'success', message: `Sekolah "${updatedData.name}" berhasil diperbarui` });
+      setNotification({
+        type: "success",
+        message: `Sekolah "${updatedData.name}" berhasil diperbarui`,
+      });
     } catch (err) {
       console.error("Failed to update school:", err);
-      setNotification({ type: 'error', message: "Gagal memperbarui sekolah. Silakan coba lagi." });
+      setNotification({
+        type: "error",
+        message: "Gagal memperbarui sekolah. Silakan coba lagi.",
+      });
     }
   };
 
   const handleDeleteSchool = async (id: string) => {
-    setSelectedSchool(schools.find((sch) => sch.id === id) || null);
+    setSelectedSchool(schools.find((school) => school.id === id) || null);
     setIsDeleteModalOpen(true);
   };
 
@@ -134,10 +167,16 @@ const SchoolPage: FC = () => {
       await deleteSchool(selectedSchool.id);
       setIsDeleteModalOpen(false);
       fetchSchools();
-      setNotification({ type: 'success', message: `Sekolah "${selectedSchool.name}" berhasil dihapus` });
+      setNotification({
+        type: "success",
+        message: `Sekolah "${selectedSchool.name}" berhasil dihapus`,
+      });
     } catch (err) {
       console.error("Failed to delete school:", err);
-      setNotification({ type: 'error', message: "Gagal menghapus sekolah. Silakan coba lagi." });
+      setNotification({
+        type: "error",
+        message: "Gagal menghapus sekolah. Silakan coba lagi.",
+      });
     }
   };
 
@@ -209,6 +248,12 @@ const SchoolPage: FC = () => {
           >
             Hapus
           </Button>
+          <Button
+            size="small"
+            onClick={() => router.push(`/manage/sekolah/${value}/unit-kompetensi`)}
+          >
+            Unit Kompetensi
+          </Button>
         </div>
       ),
     },
@@ -255,6 +300,7 @@ const SchoolPage: FC = () => {
         </div>
       )}
 
+      {/* Add modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -282,7 +328,26 @@ const SchoolPage: FC = () => {
           <TextInput
             label="Deskripsi"
             name="description"
-            placeholder="Masukkan deskripsi (opsional)"
+            placeholder="Masukkan deskripsi"
+          />
+          <TextInput
+            label="Jumlah Siswa"
+            name="studentCount"
+            type="number"
+            placeholder="Masukkan jumlah siswa"
+            required
+          />
+          <TextInput
+            label="Jumlah Lulusan"
+            name="graduateCount"
+            type="number"
+            placeholder="Masukkan jumlah lulusan"
+            required
+          />
+          <TextInput
+            label="Link Eksternal"
+            name="externalLinks"
+            placeholder="Masukkan link eksternal (pisahkan dengan koma)"
           />
           <div className="flex justify-end space-x-2">
             <Button
@@ -297,6 +362,7 @@ const SchoolPage: FC = () => {
         </form>
       </Modal>
 
+      {/* View Modal */}
       <Modal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
@@ -304,14 +370,33 @@ const SchoolPage: FC = () => {
       >
         {selectedSchool && (
           <div>
-            <p><strong>Nama:</strong> {selectedSchool.name}</p>
-            <p><strong>Kota:</strong> {selectedSchool.city}</p>
-            <p><strong>Alamat:</strong> {selectedSchool.address}</p>
-            <p><strong>Deskripsi:</strong> {selectedSchool.description || 'Tidak ada deskripsi'}</p>
+            <p>
+              <strong>Nama:</strong> {selectedSchool.name}
+            </p>
+            <p>
+              <strong>Kota:</strong> {selectedSchool.city}
+            </p>
+            <p>
+              <strong>Alamat:</strong> {selectedSchool.address}
+            </p>
+            <p>
+              <strong>Deskripsi:</strong> {selectedSchool.description}
+            </p>
+            <p>
+              <strong>Jumlah Siswa:</strong> {selectedSchool.studentCount}
+            </p>
+            <p>
+              <strong>Jumlah Lulusan:</strong> {selectedSchool.graduateCount}
+            </p>
+            <p>
+              <strong>Link Eksternal:</strong>{" "}
+              {selectedSchool.externalLinks.join(", ")}
+            </p>
           </div>
         )}
       </Modal>
 
+      {/* Edit Modal */}
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -340,7 +425,26 @@ const SchoolPage: FC = () => {
             <TextInput
               label="Deskripsi"
               name="description"
-              defaultValue={selectedSchool.description || ''}
+              defaultValue={selectedSchool.description}
+            />
+            <TextInput
+              label="Jumlah Siswa"
+              name="studentCount"
+              type="number"
+              defaultValue={selectedSchool.studentCount.toString()}
+              required
+            />
+            <TextInput
+              label="Jumlah Lulusan"
+              name="graduateCount"
+              type="number"
+              defaultValue={selectedSchool.graduateCount.toString()}
+              required
+            />
+            <TextInput
+              label="Link Eksternal"
+              name="externalLinks"
+              defaultValue={selectedSchool.externalLinks.join(", ")}
             />
             <div className="flex justify-end space-x-2">
               <Button
@@ -356,6 +460,7 @@ const SchoolPage: FC = () => {
         )}
       </Modal>
 
+      {/* Delete Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -370,11 +475,7 @@ const SchoolPage: FC = () => {
           >
             Batal
           </Button>
-          <Button
-            type="button"
-            variant="danger"
-            onClick={confirmDeleteSchool}
-          >
+          <Button type="button" variant="danger" onClick={confirmDeleteSchool}>
             Hapus
           </Button>
         </div>

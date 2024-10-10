@@ -1,5 +1,3 @@
-// src/services/schoolService.ts
-
 import { apiClient } from "@/utils/apiClient";
 import {
   School,
@@ -7,6 +5,7 @@ import {
   GetSchoolsResponse,
   CreateSchoolData,
   UpdateSchoolData,
+  GraduateCompetency,
 } from "@/interfaces/school";
 
 export async function getSchools(
@@ -53,7 +52,11 @@ export async function createSchool(
 }
 
 export async function getSchool(id: string): Promise<School> {
-  return apiClient<undefined, School>(`/schools/${id}`);
+  const response = await apiClient<undefined, any>(`/schools/${id}`);
+  if (!response || !response.success || !response.data) {
+    throw new Error("Invalid response format");
+  }
+  return response.data;
 }
 
 export async function updateSchool(
@@ -68,4 +71,30 @@ export async function updateSchool(
 
 export async function deleteSchool(id: string): Promise<void> {
   return apiClient<undefined, void>(`/schools/${id}`, { method: "DELETE" });
+}
+
+
+export async function getSchoolCompetencies(schoolId: string): Promise<GraduateCompetency[]> {
+  console.log("Fetching school competencies for school ID:", schoolId);
+  const response = await apiClient<undefined, { success: boolean, data: GraduateCompetency[] }>(`/schools/${schoolId}/competencies`);
+  console.log("Raw API response:", response);
+  if (response && response.success && Array.isArray(response.data)) {
+    console.log("Processed school competencies:", response.data);
+    return response.data;
+  }
+  console.log("Returning empty array due to invalid response");
+  return [];
+}
+
+export async function addSchoolCompetency(schoolId: string, competencyId: string): Promise<GraduateCompetency> {
+  return apiClient<{ competencyId: string }, GraduateCompetency>(`/schools/${schoolId}/competencies`, {
+    method: "POST",
+    body: { competencyId },
+  });
+}
+
+export async function removeSchoolCompetency(schoolId: string, competencyId: string): Promise<void> {
+  return apiClient<undefined, void>(`/schools/${schoolId}/competencies?competencyId=${competencyId}`, {
+    method: "DELETE",
+  });
 }

@@ -67,6 +67,8 @@ export interface ModalProps {
   closeOnOverlayClick?: boolean;
   closeOnEsc?: boolean;
   footer?: ReactNode;
+  buttons?: ModalButton[];
+  isDirty?: boolean;
 }
 
 // Loading
@@ -148,6 +150,29 @@ export interface SearchableMultiSelectProps {
 export interface Option {
   value: string;
   label: string;
+}
+
+// MultiLevelSelector
+export interface MultiLevelSelectorProps<T, U> {
+  data: T[];
+  renderItem: (item: T) => React.ReactNode;
+  renderSubItem: (subItem: U) => React.ReactNode;
+  getSubItems: (item: T) => U[];
+  onSelectionChange: (selection: {[key: string]: string[]}) => void;
+  excludeItems?: U[];
+  itemIdKey: keyof T;
+  subItemIdKey: keyof U;
+}
+
+export interface SelectionGroupProps<T, U> {
+  item: T;
+  renderItem: (item: T) => React.ReactNode;
+  renderSubItem: (subItem: U) => React.ReactNode;
+  subItems: U[];
+  selectedSubItems: string[];
+  onSelectionChange: (itemId: string, selectedSubItemIds: string[]) => void;
+  itemIdKey: keyof T;
+  subItemIdKey: keyof U;
 }
 
 // Sidebar
