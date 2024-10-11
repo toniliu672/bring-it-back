@@ -3,6 +3,7 @@ import { prisma, Prisma } from "@/config/prisma";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
 import { withAuth } from "@/utils/authUtils";
 import { withCORS } from "@/utils/corsUtils";
+import { CompetencyInput } from "@/interfaces/occupation";
 
 export async function GET(
   _request: NextRequest,
@@ -73,8 +74,8 @@ export const PUT = withCORS(
             code,
             name,
             competencies: {
-              deleteMany: {}, // Delete existing competencies
-              create: competencies?.map((comp: any) => ({
+              deleteMany: {},
+              create: competencies?.map((comp: CompetencyInput) => ({
                 unitCode: comp.unitCode,
                 name: comp.name,
                 standardCompetency: comp.standardCompetency,

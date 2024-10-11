@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { AnimatePresence, motion, useCycle } from "framer-motion";
+import { AnimatePresence, motion, MotionProps, useCycle } from "framer-motion";
 import { Button } from "@/components";
 import { SidebarProps } from "@/interfaces/componentsInterface";
 import { useDimensions } from "@/hooks/useDimentsion";
@@ -31,23 +31,6 @@ const variants = {
   },
   closed: {
     transition: { staggerChildren: 0.05, staggerDirection: -1 },
-  },
-};
-
-const itemVariants = {
-  open: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      y: { stiffness: 1000, velocity: -100 },
-    },
-  },
-  closed: {
-    y: 50,
-    opacity: 0,
-    transition: {
-      y: { stiffness: 1000 },
-    },
   },
 };
 
@@ -130,7 +113,9 @@ const Sidebar: React.FC<SidebarProps> = ({ children, className }) => {
   );
 };
 
-const Path = (props: any) => (
+const Path: React.FC<MotionProps & React.SVGProps<SVGPathElement>> = (
+  props
+) => (
   <motion.path
     fill="transparent"
     strokeWidth="3"

@@ -21,7 +21,7 @@ export function useAuth() {
 
       router.push('/peta');
       return true;
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
       return false;
     }
@@ -43,7 +43,7 @@ export function useAuth() {
 
       router.push('/login?registered=true');
       return true;
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
       return false;
     }
@@ -53,9 +53,8 @@ export function useAuth() {
     try {
       await signOut({ redirect: false, callbackUrl: '/login' });
       router.push('/login');
-    } catch (error) {
+    } catch {
       setError('An error occurred during logout');
-      console.error('Logout error:', error);
     }
   };
 

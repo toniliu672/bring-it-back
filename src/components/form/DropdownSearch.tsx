@@ -1,22 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useTheme } from 'next-themes';
 import { DropdownSearchProps, DropdownItem } from '@/interfaces/componentsInterface';
 import { useDebounce } from '@/hooks/useDebounce';
 
-const DropdownSearch = ({ 
+const DropdownSearch = <T extends DropdownItem>({ 
   fetchData,
   onSelect, 
   placeholder = 'Search...', 
   labelKey = 'label', 
   valueKey = 'value',
   debounceTime = 300
-}: DropdownSearchProps) => {
+}: DropdownSearchProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [items, setItems] = useState<DropdownItem[]>([]);
+  const [items, setItems] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
   const debouncedSearchTerm = useDebounce(searchTerm, debounceTime);
 
   const loadData = useCallback(async () => {
@@ -58,7 +56,7 @@ const DropdownSearch = ({
     setIsOpen(true);
   };
 
-  const handleSelectItem = (item: DropdownItem) => {
+  const handleSelectItem = (item: T) => {
     onSelect(item);
     setIsOpen(false);
     setSearchTerm('');
@@ -81,11 +79,11 @@ const DropdownSearch = ({
           ) : items.length > 0 ? (
             items.map((item, index) => (
               <li
-                key={item[valueKey as string] || index}
+                key={item[valueKey as keyof T]?.toString() || index}
                 onClick={() => handleSelectItem(item)}
                 className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer dark:text-white"
               >
-                {item[labelKey as string]}
+                {item[labelKey as keyof T]?.toString()}
               </li>
             ))
           ) : (

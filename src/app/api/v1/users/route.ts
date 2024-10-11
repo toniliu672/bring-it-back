@@ -7,7 +7,7 @@ import { withCORS } from '@/utils/corsUtils'; // Import the CORS utility
 const prisma = new PrismaClient();
 
 export const GET = withCORS(
-  withAdminAuth(async (req: NextRequest) => {
+  withAdminAuth(async () => {
     try {
       const users = await prisma.user.findMany({
         select: { id: true, username: true, email: true, role: true },

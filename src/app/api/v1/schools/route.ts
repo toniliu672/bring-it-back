@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, Prisma } from "@/config/prisma";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
 import { withAuth } from "@/utils/authUtils";
-import { checkAccess, withCORS } from "@/utils/corsUtils";
+import {  withCORS } from "@/utils/corsUtils";
 
 export const GET = withCORS(async (request: NextRequest) => {
   // if (!checkAccess(request)) {

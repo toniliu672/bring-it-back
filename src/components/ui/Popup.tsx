@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTheme } from 'next-themes';
 import { School } from '@/interfaces/schoolStats';
-import { Button } from '@/components';
 
 interface PopupProps {
   school: School;

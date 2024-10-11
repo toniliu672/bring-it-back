@@ -17,7 +17,12 @@ export const PUT = withCORS(withAdminAuth(async (
     const body = await req.json();
     const { username, email, password, role } = body;
     
-    let updateData: any = { username, email, role };
+    const updateData: {
+      username?: string;
+      email?: string;
+      role?: "ADMIN" | "USER";
+      password?: string;
+    } = { username, email, role };
     
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);

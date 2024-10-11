@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             role: user.role,
           };
-        } catch (error) {
+        } catch {
           return null;
         }
       },

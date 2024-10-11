@@ -1,6 +1,6 @@
 // components/feedback/Modal.tsx
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { ModalProps, ModalButton } from "@/interfaces/componentsInterface";
 import { XIcon } from "lucide-react";
@@ -19,7 +19,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (isDirty) {
       const shouldClose = window.confirm("You have unsaved changes. Are you sure you want to close?");
       if (shouldClose) {
@@ -28,7 +28,7 @@ const Modal: React.FC<ModalProps> = ({
     } else {
       onClose();
     }
-  };
+  }, [isDirty, onClose]);
 
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -54,7 +54,7 @@ const Modal: React.FC<ModalProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
       document.body.style.overflow = 'visible';
     };
-  }, [isOpen, isDirty, onClose, closeOnEsc, closeOnOverlayClick]);
+  }, [isOpen, handleClose, closeOnEsc, closeOnOverlayClick]);
 
   if (!isOpen) return null;
 

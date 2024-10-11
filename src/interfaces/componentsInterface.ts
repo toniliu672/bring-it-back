@@ -107,15 +107,15 @@ export interface PaginationProps {
 }
 
 // Table
-export interface Column<T = any> {
+export interface Column<T, K extends keyof T> {
   header: string;
-  accessor: keyof T | ((row: T, index: number) => React.ReactNode);
-  cell?: (value: any, row: T, index: number) => React.ReactNode;
+  accessor: K | ((row: T, index: number) => React.ReactNode);
+  cell?: (value: T[K], row: T, index: number) => React.ReactNode;
 }
 
-export interface TableProps<T = any> {
+export interface TableProps<T> {
   data: T[];
-  columns: Column<T>[];
+  columns: Column<T, keyof T>[];
   className?: string;
 }
 
@@ -267,11 +267,13 @@ export interface DynamicInputProps {
   onChange: (newValues: string[]) => void;
 }
 
-export interface DropdownItem {
-  [key: string]: any;
+export interface DropdownItem extends Record<string, unknown> {
+  // Tambahkan properti spesifik jika diperlukan
+  label: string;
+  value: string;
 }
 
-export interface DropdownSearchProps<T = any> {
+export interface DropdownSearchProps<T> {
   fetchData: (searchTerm: string) => Promise<T[]>;
   onSelect: (item: T) => void;
   placeholder?: string;

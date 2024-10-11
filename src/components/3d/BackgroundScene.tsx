@@ -18,18 +18,21 @@ const BackgroundScene: React.FC = () => {
 
   useEffect(() => {
     if (!mountRef.current) return;
-
+  
+    // Store the current mount node in a variable for cleanup
+    const mountNode = mountRef.current;
+  
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     cameraRef.current = camera;
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     rendererRef.current = renderer;
-
+  
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    mountRef.current.appendChild(renderer.domElement);
-
+    mountNode.appendChild(renderer.domElement);
+  
     const gridHelper = new THREE.GridHelper(20, 20, 0x000000, 0x000000);
     const material = new THREE.LineBasicMaterial({
       color: 0x000000,
@@ -39,11 +42,11 @@ const BackgroundScene: React.FC = () => {
     materialRef.current = material;
     gridHelper.material = material;
     scene.add(gridHelper);
-
+  
     camera.position.z = 10;
     camera.position.y = 5;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
-
+  
     const animate = () => {
       if (gridHelper && rendererRef.current && sceneRef.current && cameraRef.current) {
         gridHelper.rotation.x += 0.0005;
@@ -52,9 +55,9 @@ const BackgroundScene: React.FC = () => {
       }
       frameIdRef.current = requestAnimationFrame(animate);
     };
-
+  
     animate();
-
+  
     const handleResize = () => {
       if (cameraRef.current && rendererRef.current) {
         cameraRef.current.aspect = window.innerWidth / window.innerHeight;
@@ -62,16 +65,17 @@ const BackgroundScene: React.FC = () => {
         rendererRef.current.setSize(window.innerWidth, window.innerHeight);
       }
     };
-
+  
     window.addEventListener('resize', handleResize);
-
+  
     return () => {
       window.removeEventListener('resize', handleResize);
       if (frameIdRef.current) {
         cancelAnimationFrame(frameIdRef.current);
       }
-      if (rendererRef.current && mountRef.current) {
-        mountRef.current.removeChild(rendererRef.current.domElement);
+      // Use the stored mountNode for cleanup
+      if (rendererRef.current && mountNode) {
+        mountNode.removeChild(rendererRef.current.domElement);
         rendererRef.current.dispose();
       }
     };

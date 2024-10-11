@@ -1,4 +1,4 @@
-import { ErrorBoundaryProps, State } from "@/types/HOC";
+import { ErrorBoundaryProps, State } from "@/interfaces/componentsInterface";
 import React, { Component, ErrorInfo } from "react";
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
@@ -6,7 +6,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     hasError: false
   };
 
-  public static getDerivedStateFromError(_: Error): State {
+  public static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 

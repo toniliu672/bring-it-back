@@ -6,15 +6,20 @@ import {
   CreateOccupationData,
   UpdateOccupationData,
 } from "@/interfaces/occupation";
+import { ApiResponse } from "@/interfaces/apiResponse";
+
 
 export async function getOccupations(
   params: GetOccupationsParams
 ): Promise<GetOccupationsResponse> {
   try {
-    const queryParams = new URLSearchParams(params as any).toString();
-    const response = await apiClient<undefined, any>(
-      `/occupations?${queryParams}`
-    );
+    const queryParams = new URLSearchParams(
+      params as Record<string, string>
+    ).toString();
+    const response = await apiClient<
+      undefined,
+      ApiResponse<GetOccupationsResponse>
+    >(`/occupations?${queryParams}`);
 
     console.log("API Response:", response);
 
@@ -46,26 +51,43 @@ export async function getOccupations(
 export async function createOccupation(
   data: CreateOccupationData
 ): Promise<Occupation> {
-  return apiClient<CreateOccupationData, Occupation>("/occupations", {
+  const response = await apiClient<
+    CreateOccupationData,
+    ApiResponse<Occupation>
+  >("/occupations", {
     method: "POST",
     body: data,
   });
+
+  if (!response.success || !response.data) {
+    throw new Error("Failed to create occupation");
+  }
+
+  return response.data;
 }
 
 export async function getOccupation(id: string): Promise<Occupation> {
-  const response = await apiClient<undefined, any>(`/occupations/${id}`);
-  console.log('API Response for getOccupation:', response);
+  const response = await apiClient<undefined, ApiResponse<Occupation>>(
+    `/occupations/${id}`
+  );
+  console.log("API Response for getOccupation:", response);
+
   if (!response || !response.success || !response.data) {
     throw new Error("Invalid response format");
   }
+
   return response.data;
 }
 
 export async function getOccupationByName(name: string): Promise<Occupation> {
-  const response = await apiClient<undefined, any>(`/occupations/by-name/${encodeURIComponent(name)}`);
+  const response = await apiClient<undefined, ApiResponse<Occupation>>(
+    `/occupations/by-name/${encodeURIComponent(name)}`
+  );
+
   if (!response || !response.success || !response.data) {
     throw new Error("Invalid response format");
   }
+
   return response.data;
 }
 
@@ -73,13 +95,34 @@ export async function updateOccupation(
   id: string,
   data: UpdateOccupationData
 ): Promise<Occupation> {
-  console.log('Sending update request for occupation ID:', id, 'with data:', data);
-  return apiClient<UpdateOccupationData, Occupation>(`/occupations/${id}`, {
+  console.log(
+    "Sending update request for occupation ID:",
+    id,
+    "with data:",
+    data
+  );
+  const response = await apiClient<
+    UpdateOccupationData,
+    ApiResponse<Occupation>
+  >(`/occupations/${id}`, {
     method: "PUT",
     body: data,
   });
+
+  if (!response.success || !response.data) {
+    throw new Error("Failed to update occupation");
+  }
+
+  return response.data;
 }
 
 export async function deleteOccupation(id: string): Promise<void> {
-  return apiClient<undefined, void>(`/occupations/${id}`, { method: "DELETE" });
+  const response = await apiClient<undefined, ApiResponse<void>>(
+    `/occupations/${id}`,
+    { method: "DELETE" }
+  );
+
+  if (!response.success) {
+    throw new Error("Failed to delete occupation");
+  }
 }
