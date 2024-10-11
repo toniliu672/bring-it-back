@@ -1,7 +1,8 @@
+
 import NextAuth from "next-auth";
 import { authOptions } from "@/libs/auth";
 
-export const handler = NextAuth({
+const handler = NextAuth({
   ...authOptions,
   callbacks: {
     ...authOptions.callbacks,
