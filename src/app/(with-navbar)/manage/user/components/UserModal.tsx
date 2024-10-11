@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, TextInput, Select, Button } from "@/components";
-import { User } from "@/types/services";
+import { User } from "@/interfaces/authInterface";
 
 interface UserModalProps {
   isOpen: boolean;

@@ -88,11 +88,11 @@ const OccupationCompetenciesPage: FC = () => {
     setCurrentPage(page);
   }, []);
 
-  const columns: Column<OccupationCompetency & { index: number }>[] = [
+  const columns: Column<OccupationCompetency & { index: number }, keyof (OccupationCompetency & { index: number })>[] = [
     {
       header: "No",
       accessor: "index",
-      cell: (value: number) => value + 1,
+      cell: (value: string | number | null, _row: OccupationCompetency & { index: number }, index: number) => value ? (value as number) + 1 : null,
     },
     { header: "Unit Code", accessor: "unitCode" },
     { header: "Nama", accessor: "name" },
@@ -100,15 +100,15 @@ const OccupationCompetenciesPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value: string) => (
+      cell: (value) => (
         <div className="flex space-x-2">
-          <Button size="small" onClick={() => handleEditCompetency(value)}>
+          <Button size="small" onClick={() => handleEditCompetency(value as string)}>
             Edit
           </Button>
           <Button
             size="small"
             variant="danger"
-            onClick={() => handleDeleteCompetency(value)}
+            onClick={() => handleDeleteCompetency(value as string)}
           >
             Hapus
           </Button>

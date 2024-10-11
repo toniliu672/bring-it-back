@@ -195,7 +195,7 @@ const OccupationPage: FC = () => {
     setCurrentPage(page);
   }, []);
 
-  const columns: Column<Occupation & { rowNumber: number }>[] = [
+  const columns: Column<Occupation & { rowNumber: number }, keyof (Occupation & { rowNumber: number })>[] = [
     {
       header: "NO",
       accessor: "rowNumber",
@@ -205,22 +205,22 @@ const OccupationPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value: string) => (
+      cell: (value, _row) => (
         <div className="flex space-x-2">
-          <Button size="small" onClick={() => handleViewOccupation(value)}>
+          <Button size="small" onClick={() => handleViewOccupation(value as string)}>
             View
           </Button>
           <Button
             size="small"
             variant="secondary"
-            onClick={() => handleEditOccupation(value)}
+            onClick={() => handleEditOccupation(value as string)}
           >
             Edit
           </Button>
           <Button
             size="small"
             variant="outline"
-            onClick={() => handleDeleteOccupation(value)}
+            onClick={() => handleDeleteOccupation(value as string)}
           >
             Delete
           </Button>

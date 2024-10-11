@@ -1,5 +1,5 @@
 import { Button } from '@/components';
-import { User } from '@/types/services';
+import { User } from '@/interfaces/authInterface';
 
 interface UserTableProps {
   users: User[];

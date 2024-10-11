@@ -221,7 +221,7 @@ const SchoolPage: FC = () => {
     setCurrentPage(page);
   }, []);
 
-  const columns: Column<School & { rowNumber: number }>[] = [
+  const columns: Column<School & { rowNumber: number }, keyof (School & { rowNumber: number })>[] = [
     {
       header: "NO",
       accessor: "rowNumber",
@@ -231,32 +231,30 @@ const SchoolPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value: string) => (
+      cell: (value, _row) => (
         <div className="flex space-x-2">
-          <Button size="small" onClick={() => handleViewSchool(value)}>
-            Lihat
+          <Button size="small" onClick={() => handleViewSchool(value as string)}>
+            View
           </Button>
           <Button
             size="small"
             variant="secondary"
-            onClick={() => handleEditSchool(value)}
+            onClick={() => handleEditSchool(value as string)}
           >
             Edit
           </Button>
           <Button
             size="small"
             variant="outline"
-            onClick={() => handleDeleteSchool(value)}
+            onClick={() => handleDeleteSchool(value as string)}
           >
-            Hapus
+            Delete
           </Button>
           <Button
             size="small"
-            onClick={() =>
-              router.push(`/manage/sekolah/${value}/unit-kompetensi`)
-            }
+            onClick={() => router.push(`/manage/sekolah/${value}/kompetensi`)}
           >
-            Unit Kompetensi
+            Kompetensi
           </Button>
         </div>
       ),
