@@ -2,11 +2,16 @@ import { NextRequest } from "next/server";
 import { prisma, Prisma } from "@/config/prisma";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
 import { withAuth } from "@/utils/authUtils";
+import { withCORS, checkAccess } from "@/utils/corsUtils";
 
-export async function GET(
-  _request: NextRequest,
+export const GET = withCORS(async (
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
+  // if (!checkAccess(request)) {
+  //   return errorResponse("Access denied", 403);
+  // }
+
   try {
     const { id } = params;
 
@@ -48,10 +53,14 @@ export async function GET(
     }
     return errorResponse("Failed to fetch school", 500);
   }
-}
+});
 
-export const PUT = withAuth(
+export const PUT = withCORS(withAuth(
   async (request: NextRequest, { params }: { params: { id: string } }) => {
+    if (!checkAccess(request)) {
+      return errorResponse("Access denied", 403);
+    }
+
     try {
       const { id } = params;
       const body = await request.json();
@@ -90,7 +99,7 @@ export const PUT = withAuth(
                   connect: { id: comp.id },
                 },
               },
-              update: {}, // Tidak ada yang perlu diupdate untuk relasi yang sudah ada
+              update: {},
             })),
           },
           concentrations: {
@@ -106,7 +115,7 @@ export const PUT = withAuth(
                   connect: { id: conc.id },
                 },
               },
-              update: {}, // Tidak ada yang perlu diupdate untuk relasi yang sudah ada
+              update: {},
             })),
           },
         },
@@ -138,10 +147,14 @@ export const PUT = withAuth(
       return errorResponse("Failed to update school", 500);
     }
   }
-);
+));
 
-export const DELETE = withAuth(
-  async (_request: NextRequest, { params }: { params: { id: string } }) => {
+export const DELETE = withCORS(withAuth(
+  async (request: NextRequest, { params }: { params: { id: string } }) => {
+    if (!checkAccess(request)) {
+      return errorResponse("Access denied", 403);
+    }
+
     try {
       const { id } = params;
 
@@ -155,4 +168,4 @@ export const DELETE = withAuth(
       return errorResponse("Failed to delete school", 500);
     }
   }
-);
+));

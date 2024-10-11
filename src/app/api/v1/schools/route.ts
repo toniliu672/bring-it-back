@@ -1,9 +1,14 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma, Prisma } from "@/config/prisma";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
 import { withAuth } from "@/utils/authUtils";
+import { checkAccess, withCORS } from "@/utils/corsUtils";
 
-export async function GET(request: NextRequest) {
+export const GET = withCORS(async (request: NextRequest) => {
+  // if (!checkAccess(request)) {
+  //   return errorResponse("Unauthorized access", 403);
+  // }
+
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
@@ -53,7 +58,6 @@ export async function GET(request: NextRequest) {
       prisma.school.count({ where }),
     ]);
 
-    // Urutkan hasil secara manual berdasarkan kecocokan nama
     const sortedSchools = schools.sort((a, b) => {
       if (a.name.toLowerCase() === search.toLowerCase()) return -1;
       if (b.name.toLowerCase() === search.toLowerCase()) return 1;
@@ -83,25 +87,13 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching schools:", error);
     return errorResponse("Failed to fetch schools", 500);
   }
-}
+});
 
-export const POST = withAuth(async (request: NextRequest) => {
-  try {
-    const body = await request.json();
-    const {
-      name,
-      city,
-      address,
-      description,
-      studentCount,
-      graduateCount,
-      externalLinks,
-      competencies,
-      concentrations,
-    } = body;
-
-    const newSchool = await prisma.school.create({
-      data: {
+export const POST = withCORS(
+  withAuth(async (request: NextRequest) => {
+    try {
+      const body = await request.json();
+      const {
         name,
         city,
         address,
@@ -109,46 +101,75 @@ export const POST = withAuth(async (request: NextRequest) => {
         studentCount,
         graduateCount,
         externalLinks,
-        competencies: {
-          create: competencies?.map((comp: any) => ({
-            competency: {
-              connect: { id: comp.id },
-            },
-          })),
-        },
-        concentrations: {
-          create: concentrations?.map((conc: any) => ({
-            concentration: {
-              connect: { id: conc.id },
-            },
-          })),
-        },
-      },
-      include: {
-        competencies: {
-          include: {
-            competency: true,
+        competencies,
+        concentrations,
+      } = body;
+
+      // Validasi input
+      if (!name || !city || !address) {
+        return errorResponse("Name, city, and address are required", 400);
+      }
+
+      const newSchool = await prisma.school.create({
+        data: {
+          name,
+          city,
+          address,
+          description: description || "",
+          studentCount: studentCount || 0,
+          graduateCount: graduateCount || 0,
+          externalLinks: externalLinks || [],
+          competencies: {
+            create: competencies?.map((comp: { id: string }) => ({
+              competency: {
+                connect: { id: comp.id },
+              },
+            })),
+          },
+          concentrations: {
+            create: concentrations?.map((conc: { id: string }) => ({
+              concentration: {
+                connect: { id: conc.id },
+              },
+            })),
           },
         },
-        concentrations: {
-          include: {
-            concentration: true,
+        include: {
+          competencies: {
+            include: {
+              competency: true,
+            },
+          },
+          concentrations: {
+            include: {
+              concentration: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const schoolWithGraduatePercent = {
-      ...newSchool,
-      graduatePercent:
-        newSchool.studentCount > 0
-          ? (newSchool.graduateCount / newSchool.studentCount) * 100
-          : 0,
-    };
+      const schoolWithGraduatePercent = {
+        ...newSchool,
+        graduatePercent:
+          newSchool.studentCount > 0
+            ? (newSchool.graduateCount / newSchool.studentCount) * 100
+            : 0,
+      };
 
-    return successResponse(schoolWithGraduatePercent, 201);
-  } catch (error) {
-    console.error("Error creating school:", error);
-    return errorResponse("Failed to create school", 500);
-  }
+      return successResponse(schoolWithGraduatePercent, 201);
+    } catch (error) {
+      console.error("Error creating school:", error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          return errorResponse("A school with this name already exists", 400);
+        }
+      }
+      return errorResponse("Failed to create school", 500);
+    }
+  })
+);
+
+// Tambahkan ini untuk menangani OPTIONS secara eksplisit
+export const OPTIONS = withCORS(async () => {
+  return new NextResponse(null, { status: 204 });
 });

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/config/prisma";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
 import { withAuth } from "@/utils/authUtils";
+import { withCORS } from "@/utils/corsUtils";
 
 // GET: Mengambil semua kompetensi untuk sekolah tertentu
 export async function GET(
@@ -25,7 +26,7 @@ export async function GET(
   }
 }
 // POST: Menambahkan kompetensi baru ke sekolah
-export const POST = withAuth(
+export const POST = withCORS(withAuth(
   async (request: NextRequest, { params }: { params: { id: string } }) => {
     try {
       const { id } = params;
@@ -48,10 +49,10 @@ export const POST = withAuth(
       return errorResponse("Failed to add school competency", 500);
     }
   }
-);
+));
 
 // DELETE: Menghapus kompetensi dari sekolah
-export const DELETE = withAuth(
+export const DELETE = withCORS(withAuth(
   async (request: NextRequest, { params }: { params: { id: string } }) => {
     try {
       const { id } = params;
@@ -78,4 +79,4 @@ export const DELETE = withAuth(
       return errorResponse("Failed to delete school competency", 500);
     }
   }
-);
+));

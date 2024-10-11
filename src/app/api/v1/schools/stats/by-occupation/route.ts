@@ -1,10 +1,14 @@
-// src/app/api/v1/schools/stats/by-occupation/route.ts
-
 import { NextRequest } from "next/server";
 import { prisma } from "@/config/prisma";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
+import { checkAccess } from "@/utils/corsUtils";
 
 export async function GET(request: NextRequest) {
+  // Periksa akses
+  if (!checkAccess(request)) {
+    return errorResponse("Access denied", 403);
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const occupationCode = searchParams.get("occupationCode");
@@ -31,7 +35,7 @@ export async function GET(request: NextRequest) {
             competency: true,
           },
         },
-        concentrations: { // Jika Anda juga ingin menyertakan konsentrasi
+        concentrations: {
           include: {
             concentration: true,
           },
@@ -49,7 +53,7 @@ export async function GET(request: NextRequest) {
       const percentage = (matchingCompetencies / totalCompetencies) * 100;
 
       return {
-        ...school, // Menyertakan semua properti dari objek school
+        ...school,
         matchingCompetencies,
         totalCompetencies,
         percentage: Number(percentage.toFixed(2)),

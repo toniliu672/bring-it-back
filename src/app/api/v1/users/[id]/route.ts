@@ -3,10 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { withAdminAuth } from '@/utils/authUtils';
+import { withCORS } from '@/utils/corsUtils';
 
 const prisma = new PrismaClient();
 
-export const PUT = withAdminAuth(async (
+export const PUT = withCORS(withAdminAuth(async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
@@ -33,9 +34,9 @@ export const PUT = withAdminAuth(async (
     console.error('Error updating user:', error);
     return NextResponse.json({ message: 'Error updating user' }, { status: 500 });
   }
-});
+}));
 
-export const DELETE = withAdminAuth(async (
+export const DELETE = withCORS(withAdminAuth(async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
@@ -51,4 +52,4 @@ export const DELETE = withAdminAuth(async (
     console.error('Error deleting user:', error);
     return NextResponse.json({ message: 'Error deleting user' }, { status: 500 });
   }
-});
+}));

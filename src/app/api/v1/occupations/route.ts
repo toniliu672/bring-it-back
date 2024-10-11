@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma, Prisma } from '@/config/prisma';
 import { successResponse, errorResponse } from '@/utils/apiResponse';
 import { withAuth } from '@/utils/authUtils';
+import { withCORS } from '@/utils/corsUtils';
 
 export async function GET(request: NextRequest) {
     try {
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-export const POST = withAuth(async (request: NextRequest) => {
+export const POST = withCORS(withAuth(async (request: NextRequest) => {
     try {
       const body = await request.json();
       const { code, name, competencies } = body;
@@ -80,4 +81,4 @@ export const POST = withAuth(async (request: NextRequest) => {
       console.error('Error creating occupation:', error);
       return errorResponse('Failed to create occupation', 500);
     }
-  });
+  }));
