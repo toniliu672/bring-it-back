@@ -1,5 +1,6 @@
 "use client";
 
+import { createRoot } from "react-dom/client";
 import { useEffect, useRef, useState } from "react";
 import Map from "ol/Map";
 import View from "ol/View";
@@ -43,7 +44,6 @@ export default function PetaPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
 
   useEffect(() => {
@@ -82,7 +82,6 @@ export default function PetaPage() {
     setError(null);
     setSchoolStats([]);
     setCurrentPage(1);
-    setSelectedSchool(null);
 
     try {
       const data: SchoolStatsResponse = await fetchSchoolStats(occupation.code);
@@ -91,16 +90,19 @@ export default function PetaPage() {
       } else {
         setError("Format data tidak valid dari API.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error mengambil statistik sekolah:", err);
-      setError(err.message || "Gagal mengambil statistik sekolah.");
+      if (err instanceof Error) {
+        setError(err.message || "Gagal mengambil statistik sekolah.");
+      } else {
+        setError("Gagal mengambil statistik sekolah.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleSelectSchool = async (school: School) => {
-    setSelectedSchool(school);
     setLoadingLocation(true);
 
     try {
@@ -112,9 +114,13 @@ export default function PetaPage() {
       } else {
         setError("Lokasi tidak valid atau tidak ditemukan.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error mencari lokasi sekolah:", err);
-      setError(err.message || "Gagal mencari lokasi sekolah.");
+      if (err instanceof Error) {
+        setError(err.message || "Gagal mencari lokasi sekolah.");
+      } else {
+        setError("Gagal mencari lokasi sekolah.");
+      }
     } finally {
       setLoadingLocation(false);
     }
@@ -160,23 +166,26 @@ export default function PetaPage() {
     map.getView().setZoom(15);
 
     // Create popup overlay
-    const popupElement = document.createElement('div');
+    const popupElement = document.createElement("div");
     const popup = new Overlay({
       element: popupElement,
-      positioning: 'bottom-center',
+      positioning: "bottom-center",
       stopEvent: false,
       offset: [0, -20],
     });
     map.addOverlay(popup);
 
     // Show popup on click
-    map.on('click', (evt) => {
-      const feature = map.forEachFeatureAtPixel(evt.pixel, (feature) => feature);
+    map.on("click", (evt) => {
+      const feature = map.forEachFeatureAtPixel(
+        evt.pixel,
+        (feature) => feature
+      );
       if (feature === marker) {
         popup.setPosition(evt.coordinate);
-        ReactDOM.render(
-          <Popup school={school} onClose={() => popup.setPosition(undefined)} />,
-          popupElement
+        const root = createRoot(popupElement);
+        root.render(
+          <Popup school={school} onClose={() => popup.setPosition(undefined)} />
         );
       } else {
         popup.setPosition(undefined);
@@ -259,12 +268,12 @@ export default function PetaPage() {
     <div className="w-full h-screen relative">
       <div ref={mapRef} className="w-full h-full" />
       <Sidebar className="z-40">
-        <div className="space-y-4 pt-14"> {/* Tambahkan padding-top di sini */}
+        <div className="space-y-4 pt-14">
+          {" "}
+          {/* Tambahkan padding-top di sini */}
           <AutoComplete onSelect={handleSelectOccupation} />
-
           {loading && <p className="text-blue-500">Memuat...</p>}
           {error && <p className="text-red-500">Error: {error}</p>}
-
           {selectedOccupation && (
             <div>
               <h2 className="text-lg font-semibold">
@@ -273,7 +282,6 @@ export default function PetaPage() {
               </h2>
             </div>
           )}
-
           {!loading && !error && schoolStats.length > 0 && (
             <div className="space-y-4">
               {getCurrentPageSchools().map((school, index) =>
@@ -281,7 +289,6 @@ export default function PetaPage() {
               )}
             </div>
           )}
-
           {!loading &&
             !error &&
             schoolStats.length === 0 &&
@@ -290,7 +297,6 @@ export default function PetaPage() {
                 Tidak ada sekolah yang ditemukan untuk okupasi ini.
               </p>
             )}
-
           {schoolStats.length > ITEMS_PER_PAGE && (
             <Pagination
               currentPage={currentPage}

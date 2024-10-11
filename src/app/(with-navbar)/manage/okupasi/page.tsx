@@ -35,7 +35,6 @@ const OccupationPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [, setCompetencyOptions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [newCompetencies, setNewCompetencies] = useState<CompetencyInput[]>([]);
   const [selectedOccupation, setSelectedOccupation] = useState<Occupation | null>(null);
@@ -61,10 +60,6 @@ const OccupationPage: FC = () => {
       setIsLoading(false);
     }
   }, []);
-
-  const fetchCompetencies = async () => {
-    setCompetencyOptions([]);
-  };
 
   const handleAddOccupation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -163,7 +158,6 @@ const OccupationPage: FC = () => {
 
   useEffect(() => {
     fetchOccupations();
-    fetchCompetencies();
   }, [fetchOccupations]);
 
   const filteredOccupations = useMemo(() => {
@@ -211,7 +205,7 @@ const OccupationPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value: string, row: Occupation) => (
+      cell: (value: string) => (
         <div className="flex space-x-2">
           <Button size="small" onClick={() => handleViewOccupation(value)}>
             View
@@ -240,7 +234,7 @@ const OccupationPage: FC = () => {
       ),
     },
   ];
-
+  
   const filterEmptyCompetencies = (competencies: CompetencyInput[]): CompetencyInput[] => {
     return competencies.filter(
       (comp) =>

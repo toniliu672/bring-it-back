@@ -231,7 +231,7 @@ const SchoolPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value: string, row: School) => (
+      cell: (value: string) => (
         <div className="flex space-x-2">
           <Button size="small" onClick={() => handleViewSchool(value)}>
             Lihat
@@ -262,6 +262,7 @@ const SchoolPage: FC = () => {
       ),
     },
   ];
+  
 
   if (isLoading) {
     return <SpinnerLoading />;

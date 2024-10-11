@@ -54,16 +54,16 @@ const SchoolCompetenciesPage: FC = () => {
         setSchool(schoolData);
         setOccupations(occupationsData.occupations);
         setSchoolCompetencies(schoolCompetenciesData);
-      } catch (err) {
+      } catch {
         setError("Gagal mengambil data. Silakan coba lagi nanti.");
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchData();
   }, [id]);
-
+  
   const handleAddCompetency = async () => {
     try {
       if (selectedCompetency === "default") {
@@ -73,7 +73,7 @@ const SchoolCompetenciesPage: FC = () => {
         });
         return;
       }
-
+  
       if (schoolCompetencies.some(comp => comp.competencyId === selectedCompetency)) {
         setNotification({
           type: "error",
@@ -81,7 +81,7 @@ const SchoolCompetenciesPage: FC = () => {
         });
         return;
       }
-
+  
       await addSchoolCompetency(id as string, selectedCompetency);
       setIsCompetencyModalOpen(false);
       const updatedCompetencies = await getSchoolCompetencies(id as string);
@@ -92,14 +92,14 @@ const SchoolCompetenciesPage: FC = () => {
       });
       setSelectedOccupation("");
       setSelectedCompetency("default");
-    } catch (err) {
+    } catch {
       setNotification({
         type: "error",
         message: "Gagal menambahkan kompetensi. Silakan coba lagi.",
       });
     }
   };
-
+  
   const handleRemoveCompetency = async (competencyId: string) => {
     try {
       await removeSchoolCompetency(id as string, competencyId);
@@ -109,7 +109,7 @@ const SchoolCompetenciesPage: FC = () => {
         type: "success",
         message: "Kompetensi berhasil dihapus",
       });
-    } catch (err) {
+    } catch {
       setNotification({
         type: "error",
         message: "Gagal menghapus kompetensi. Silakan coba lagi.",
