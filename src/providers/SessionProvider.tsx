@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 // Daftar rute publik yang tidak memerlukan autentikasi
-const publicRoutes = ['/login', '/register'];
+const publicRoutes = ['/login', '/register', '/', '/peta'];
 
 function SessionCheck() {
   const { data: session, status } = useSession();
@@ -25,12 +25,17 @@ function SessionCheck() {
     }
 
     // Jika statusnya 'unauthenticated' dan bukan rute publik, redirect ke halaman login.
-    if (status === "unauthenticated" && !publicRoutes.includes(pathname)) {
+    if (status === "unauthenticated" && !isPublicRoute(pathname)) {
       router.push('/login');
     }
   }, [status, session, router, pathname]);
 
   return null;
+}
+
+// Function untuk memeriksa apakah suatu rute adalah rute publik
+function isPublicRoute(path: string): boolean {
+  return publicRoutes.some(route => path.startsWith(route));
 }
 
 export default function SessionProvider({ children }: { children: React.ReactNode }) {
