@@ -24,8 +24,14 @@ export default function LayoutWithNavbar({
         {
           label: "Manage Data",
           dropdown: [
-            { href: "/manage/okupasi", label: "Manage Okupasi" },
-            { href: "/manage/sekolah", label: "Manage Sekolah" },
+            {
+              href: "/manage/okupasi", label: "Manage Okupasi",
+              value: ""
+            },
+            {
+              href: "/manage/sekolah", label: "Manage Sekolah",
+              value: ""
+            },
           ],
         },
       ];
@@ -34,6 +40,7 @@ export default function LayoutWithNavbar({
         userItems[0].dropdown?.push({
           href: "/manage/user",
           label: "Manage User",
+          value: ""
         });
       }
 
