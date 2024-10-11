@@ -35,7 +35,7 @@ const OccupationPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [competencyOptions, setCompetencyOptions] = useState<any[]>([]);
+  const [, setCompetencyOptions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [newCompetencies, setNewCompetencies] = useState<CompetencyInput[]>([]);
   const [selectedOccupation, setSelectedOccupation] = useState<Occupation | null>(null);

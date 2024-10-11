@@ -29,7 +29,9 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
         <Card className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
           <div className="p-8">
-            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">Welcome Back</h2>
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">
+              Welcome Back
+            </h2>
             {searchParams?.get("registered") === "true" && (
               <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                 Registration successful! Please log in.
@@ -71,8 +73,11 @@ export default function LoginPage() {
               </Button>
             </form>
             <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{" "}
-              <a href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+              Don"t have an account?{" "}
+              <a
+                href="/register"
+                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
                 Sign up
               </a>
             </p>

@@ -1,5 +1,3 @@
-import { OccupationCompetency } from "./occupation";
-
 export interface School {
   id: string;
   name: string;

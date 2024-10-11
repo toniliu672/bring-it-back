@@ -1,7 +1,4 @@
 // src/interfaces/occupation.ts
-
-import { Prisma } from '@prisma/client';
-
 export interface Occupation {
   id: string;
   code: string;
