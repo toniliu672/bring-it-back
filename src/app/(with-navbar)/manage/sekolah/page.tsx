@@ -231,7 +231,7 @@ const SchoolPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value, _row) => (
+      cell: (value) => (
         <div className="flex space-x-2">
           <Button size="small" onClick={() => handleViewSchool(value as string)}>
             View

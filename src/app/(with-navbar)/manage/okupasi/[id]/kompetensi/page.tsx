@@ -92,7 +92,8 @@ const OccupationCompetenciesPage: FC = () => {
     {
       header: "No",
       accessor: "index",
-      cell: (value: string | number | null, _row: OccupationCompetency & { index: number }, index: number) => value ? (value as number) + 1 : null,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      cell: (value, _row, _index) => (value as number) + 1,
     },
     { header: "Unit Code", accessor: "unitCode" },
     { header: "Nama", accessor: "name" },
@@ -100,7 +101,8 @@ const OccupationCompetenciesPage: FC = () => {
     {
       header: "Aksi",
       accessor: "id",
-      cell: (value) => (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      cell: (value, _row, _index) => (
         <div className="flex space-x-2">
           <Button size="small" onClick={() => handleEditCompetency(value as string)}>
             Edit
