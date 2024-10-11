@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaClient } from "@prisma/client";
 import { RegisterData } from '@/interfaces/authInterface';
 import bcrypt from 'bcryptjs';
@@ -9,7 +8,8 @@ export const AuthService = {
   login: async (email: string, password: string) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: _, ...userWithoutPassword } = user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }
     return null;
@@ -24,7 +24,8 @@ export const AuthService = {
         role: data.role,
       },
     });
-    const { password: _, ...userWithoutPassword } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   },
 };
