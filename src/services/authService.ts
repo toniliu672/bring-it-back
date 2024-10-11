@@ -6,10 +6,9 @@ const prisma = new PrismaClient();
 
 export const AuthService = {
   login: async (email: string, password: string) => {
-    // Implementasi login yang mengembalikan user jika berhasil
     const user = await prisma.user.findUnique({ where: { email } });
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: _password, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }
     return null;
@@ -24,7 +23,7 @@ export const AuthService = {
         role: data.role,
       },
     });
-    const { password: _password, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   },
 };

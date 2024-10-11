@@ -1,5 +1,3 @@
-// src/utils/apiClient.ts
-
 const API_BASE_URL = '/api/v1';
 
 export class ApiError extends Error {
@@ -21,7 +19,7 @@ type ApiClientOptions<T> = Omit<RequestInit, 'body'> & {
   body?: T;
 };
 
-export async function apiClient<T, R = any>(
+export async function apiClient<T, R>(
   endpoint: string,
   options: ApiClientOptions<T> = {}
 ): Promise<R> {
@@ -31,15 +29,13 @@ export async function apiClient<T, R = any>(
     ...options.headers,
   };
 
-  // Pisahkan 'body' dari 'options' untuk mencegah tipe 'T' masuk ke 'config'
   const { body, ...otherOptions } = options;
 
   const config: RequestInit = {
-    ...otherOptions, // 'body' tidak disertakan di sini
+    ...otherOptions,
     headers,
   };
 
-  // Tambahkan 'body' ke 'config' dengan tipe yang sesuai
   if (body !== undefined) {
     config.body = JSON.stringify(body);
   }
