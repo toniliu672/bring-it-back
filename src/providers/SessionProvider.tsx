@@ -3,11 +3,15 @@
 import { SessionProvider as NextAuthSessionProvider } from "next-auth/react";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
+// Daftar rute publik yang tidak memerlukan autentikasi
+const publicRoutes = ['/login', '/register'];
 
 function SessionCheck() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (status === "authenticated" && session) {
@@ -20,11 +24,11 @@ function SessionCheck() {
       }
     }
 
-    // Jika statusnya 'unauthenticated', redirect ke halaman login.
-    if (status === "unauthenticated") {
+    // Jika statusnya 'unauthenticated' dan bukan rute publik, redirect ke halaman login.
+    if (status === "unauthenticated" && !publicRoutes.includes(pathname)) {
       router.push('/login');
     }
-  }, [status, session, router]);
+  }, [status, session, router, pathname]);
 
   return null;
 }

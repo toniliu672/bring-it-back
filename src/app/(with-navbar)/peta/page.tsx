@@ -31,7 +31,6 @@ import {
 import { getGeocoding } from "@/utils/geocoding";
 import { MARKER_ICON_URL } from "@/constants/images";
 import Overlay from "ol/Overlay";
-import ReactDOM from "react-dom";
 
 const ITEMS_PER_PAGE = 5;
 
