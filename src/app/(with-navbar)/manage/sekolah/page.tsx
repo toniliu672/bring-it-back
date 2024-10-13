@@ -252,7 +252,7 @@ const SchoolPage: FC = () => {
           </Button>
           <Button
             size="small"
-            onClick={() => router.push(`/manage/sekolah/${value}/kompetensi`)}
+            onClick={() => router.push(`/manage/sekolah/${value}/unit-kompetensi`)}
           >
             Kompetensi
           </Button>

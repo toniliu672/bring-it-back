@@ -21,6 +21,7 @@ import {
   SpinnerLoading,
   AutoComplete,
   Popup,
+  ResultCard,
 } from "@/components";
 import { fetchSchoolStats } from "@/services/schoolStatsService";
 import {
@@ -44,6 +45,8 @@ export default function PetaPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -125,6 +128,63 @@ export default function PetaPage() {
     }
   };
 
+  const handleAnalyze = async (school: School) => {
+    setIsAnalyzing(true);
+    setAnalysisResult(""); // Kosongkan hasil analisis sebelumnya
+    
+    try {
+      const response = await fetch('/api/v1/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ schoolData: school }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+        setAnalysisResult(result.candidates[0].content.parts[0].text);
+      } else {
+        throw new Error('Unexpected response structure from Gemini API');
+      }
+    } catch (error) {
+      console.error('Error analyzing school data:', error);
+      setAnalysisResult('Gagal menganalisis data sekolah. Silakan coba lagi.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleAskQuestion = async (question: string) => {
+    try {
+      const response = await fetch("/api/v1/gemini", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+        return result.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Unexpected response structure from Gemini API");
+      }
+    } catch (error) {
+      console.error("Error asking question:", error);
+      return "Maaf, terjadi kesalahan saat memproses pertanyaan Anda.";
+    }
+  };
+
   const addMarkerToMap = (lat: number, lon: number, school: School) => {
     if (!map) return;
 
@@ -184,7 +244,11 @@ export default function PetaPage() {
         popup.setPosition(evt.coordinate);
         const root = createRoot(popupElement);
         root.render(
-          <Popup school={school} onClose={() => popup.setPosition(undefined)} />
+          <Popup
+            school={school}
+            onClose={() => popup.setPosition(undefined)}
+            onAnalyze={() => handleAnalyze(school)}
+          />
         );
       } else {
         popup.setPosition(undefined);
@@ -310,6 +374,17 @@ export default function PetaPage() {
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
           <SpinnerLoading />
         </div>
+      )}
+      {(isAnalyzing || analysisResult !== null) && (
+        <ResultCard
+          initialResult={analysisResult || ""}
+          isLoading={isAnalyzing}
+          onClose={() => {
+            setAnalysisResult(null);
+            setIsAnalyzing(false);
+          }}
+          onAskQuestion={handleAskQuestion}
+        />
       )}
     </div>
   );

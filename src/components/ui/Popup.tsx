@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { useTheme } from "next-themes";
 import { School } from "@/interfaces/schoolStats";
 import { Button } from "..";
@@ -6,11 +5,15 @@ import { Button } from "..";
 interface PopupProps {
   school: School;
   onClose: () => void;
+  onAnalyze: (school: School) => Promise<void>;
 }
 
-const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
+const Popup: React.FC<PopupProps> = ({ school, onClose, onAnalyze }) => {
   const { theme } = useTheme();
-  const [loading] = useState<boolean>(false);
+
+  const handleAnalyzeClick = () => {
+    onAnalyze(school);
+  };
 
   return (
     <div
@@ -43,7 +46,7 @@ const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
         <strong>Jumlah Lulusan:</strong> {school.graduateCount}
       </p>
       <p className="text-sm mb-1">
-        <strong>Kompetensi yang Sesuai:</strong> {school.matchingCompetencies}
+        <strong>Kompetensi sesuai Okupasi:</strong> {school.matchingCompetencies}
       </p>
 
       <p className="text-sm mb-1">
@@ -107,10 +110,7 @@ const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
             </li>
           ))}
         </ul>
-        {/* Tombol Simpulkan */}
-        <div className="mt-4">
-          <Button size="small">{loading ? "Memproses..." : "Simpulkan"}</Button>
-        </div>
+        <Button onClick={handleAnalyzeClick}>Analisis</Button>
       </div>
     </div>
   );
