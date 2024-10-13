@@ -2,7 +2,7 @@
 // src/utils/corsUtils.ts
 import { NextRequest, NextResponse } from "next/server";
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || ["www.mahasiswa-it.online"];
 
 export function isAllowedOrigin(origin: string | null): boolean {
   return origin

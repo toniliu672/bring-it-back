@@ -50,6 +50,7 @@ export { default as Pagination } from "./pagination/Pagination";
 // UI
 export { default as Card } from "./ui/Card";
 export { default as Popup } from "./ui/Popup";
+export { default as ResultCard } from "./ui/ResultCard";
 
 // 3d
 export { default as BackgroundScene } from "./3d/BackgroundScene";

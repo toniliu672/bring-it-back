@@ -1,6 +1,7 @@
-import React from 'react';
-import { useTheme } from 'next-themes';
-import { School } from '@/interfaces/schoolStats';
+import React, { useState } from "react";
+import { useTheme } from "next-themes";
+import { School } from "@/interfaces/schoolStats";
+import { Button } from "..";
 
 interface PopupProps {
   school: School;
@@ -9,34 +10,72 @@ interface PopupProps {
 
 const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
   const { theme } = useTheme();
+  const [loading] = useState<boolean>(false);
 
   return (
-    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-lg shadow-lg p-4 max-w-sm w-full`}>
+    <div
+      className={`${
+        theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+      } 
+      rounded-lg shadow-lg p-4 max-w-sm w-full max-h-[80vh] overflow-y-auto`}
+    >
       <button
         onClick={onClose}
-        className={`float-right ${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
+        className={`float-right ${
+          theme === "dark"
+            ? "text-gray-400 hover:text-gray-200"
+            : "text-gray-500 hover:text-gray-700"
+        }`}
       >
         ✕
       </button>
       <h3 className="font-semibold text-lg mb-2">{school.name}</h3>
-      <p className="text-sm mb-1"><strong>Kota:</strong> {school.city}</p>
-      <p className="text-sm mb-1"><strong>Alamat:</strong> {school.address}</p>
-      <p className="text-sm mb-1"><strong>Jumlah Siswa:</strong> {school.studentCount}</p>
-      <p className="text-sm mb-1"><strong>Jumlah Lulusan:</strong> {school.graduateCount}</p>
-      <p className="text-sm mb-1"><strong>Kompetensi yang Sesuai:</strong> {school.matchingCompetencies}</p>
-      {/* <p className="text-sm mb-1"><strong>Total Kompetensi:</strong> {school.totalCompetencies}</p> */}
+      <p className="text-sm mb-1">
+        <strong>Kota:</strong> {school.city}
+      </p>
+      <p className="text-sm mb-1">
+        <strong>Alamat:</strong> {school.address}
+      </p>
+      <p className="text-sm mb-1">
+        <strong>Jumlah Siswa:</strong> {school.studentCount}
+      </p>
+      <p className="text-sm mb-1">
+        <strong>Jumlah Lulusan:</strong> {school.graduateCount}
+      </p>
+      <p className="text-sm mb-1">
+        <strong>Kompetensi yang Sesuai:</strong> {school.matchingCompetencies}
+      </p>
+
+      <p className="text-sm mb-1">
+        <strong>List Kompetensi:</strong>
+      </p>
+      <ul className="list-disc list-inside ml-4">
+        {school.competencies.map((competency, index) => (
+          <li key={index} className="text-sm">
+            <strong>{competency.competency.name}</strong> -{" "}
+            {competency.competency.unitCode || "No Unit Code"}
+          </li>
+        ))}
+      </ul>
+
       <div className="mt-2">
         <strong className="text-sm">Persentase Kecocokan:</strong>
-        <div className={`w-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-2.5 mt-1`}>
-          <div 
-            className="bg-blue-600 h-2.5 rounded-full" 
+        <div
+          className={`w-full ${
+            theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+          } rounded-full h-2.5 mt-1`}
+        >
+          <div
+            className="bg-blue-600 h-2.5 rounded-full"
             style={{ width: `${school.percentage}%` }}
           ></div>
         </div>
         <p className="text-sm text-right mt-1">{school.percentage}%</p>
       </div>
       {school.description && (
-        <p className="text-sm mt-2"><strong>Deskripsi:</strong> {school.description}</p>
+        <p className="text-sm mt-2">
+          <strong>Deskripsi:</strong> {school.description}
+        </p>
       )}
       <div className="mt-2">
         <strong className="text-sm">Link Eksternal:</strong>
@@ -48,22 +87,31 @@ const Popup: React.FC<PopupProps> = ({ school, onClose }) => {
                   href={link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} hover:underline`}
+                  className={`${
+                    theme === "dark"
+                      ? "text-blue-400 hover:text-blue-300"
+                      : "text-blue-600 hover:text-blue-800"
+                  } hover:underline`}
                 >
                   {link}
                 </a>
               ) : (
-                <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>Tidak ada link</span>
+                <span
+                  className={
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                  }
+                >
+                  Tidak ada link
+                </span>
               )}
             </li>
           ))}
         </ul>
+        {/* Tombol Simpulkan */}
+        <div className="mt-4">
+          <Button size="small">{loading ? "Memproses..." : "Simpulkan"}</Button>
+        </div>
       </div>
-      {/* <div className="mt-4">
-        <Button size="small" onClick={() => window.open(`/sekolah/${school.id}`, '_blank')}>
-          Lihat Detail Sekolah
-        </Button>
-      </div> */}
     </div>
   );
 };

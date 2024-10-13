@@ -6,6 +6,7 @@ import {
   TextareaHTMLAttributes,
 } from "react";
 import { MotionProps } from "framer-motion";
+import { School } from "./schoolStats";
 
 // Animations
 export interface BaseAnimationProps extends MotionProps {
@@ -282,4 +283,10 @@ export interface DropdownSearchProps<T> {
   debounceTime?: number;
   renderOption?: (item: T) => ReactNode;
   isLoading?: boolean;
+}
+
+// ResultCard 
+export interface ResultCardProps {
+  result: string;
+  onClose: () => void;
 }
