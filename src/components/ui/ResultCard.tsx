@@ -38,7 +38,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
     try {
       const response = await onAskQuestion(input);
       setChat((prev) => [...prev, { role: "assistant", content: response }]);
-    } catch (error) {
+    } catch {
       // console.error("Error asking question:", error);
       setChat((prev) => [
         ...prev,
