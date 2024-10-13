@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
+import { useTheme } from "next-themes";
 import { Button, Card, SpinnerLoading, TextInput } from "..";
 
 interface ResultCardProps {
@@ -14,6 +15,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
   onClose,
   onAskQuestion,
 }) => {
+  const { theme } = useTheme();
   const [chat, setChat] = useState<{ role: string; content: string }[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(externalLoading);
@@ -39,7 +41,6 @@ const ResultCard: React.FC<ResultCardProps> = ({
       const response = await onAskQuestion(input);
       setChat((prev) => [...prev, { role: "assistant", content: response }]);
     } catch {
-      // console.error("Error asking question:", error);
       setChat((prev) => [
         ...prev,
         {
@@ -63,9 +64,19 @@ const ResultCard: React.FC<ResultCardProps> = ({
   };
 
   return (
-    <Card className="fixed bottom-4 left-4 w-96 max-h-[80vh] overflow-y-auto z-50 p-4">
+    <Card
+      className={`fixed bottom-4 left-4 w-96 max-h-[80vh] overflow-y-auto z-50 p-4 ${
+        theme === "dark"
+          ? "bg-gray-800 text-white"
+          : "bg-gray-100 text-gray-900"
+      } border ${theme === "dark" ? "border-gray-700" : "border-gray-300"}`}
+    >
       <Button
-        className="absolute top-2 right-2"
+        className={`absolute top-2 right-2 ${
+          theme === "dark"
+            ? "text-gray-300 hover:text-white"
+            : "text-gray-600 hover:text-gray-900"
+        }`}
         size="small"
         variant="secondary"
         onClick={onClose}
@@ -83,9 +94,15 @@ const ResultCard: React.FC<ResultCardProps> = ({
           chat.map((message, index) => (
             <div
               key={index}
-              className={`p-2 rounded-lg ${
-                message.role === "assistant" ? "bg-blue-100" : "bg-gray-100"
-              }`}
+              className={`p-3 rounded-lg ${
+                message.role === "assistant"
+                  ? theme === "dark"
+                    ? "bg-blue-800 text-white"
+                    : "bg-blue-100 text-blue-900"
+                  : theme === "dark"
+                  ? "bg-gray-700 text-white"
+                  : "bg-white text-gray-900"
+              } shadow-sm`}
             >
               <p className="text-sm">{message.content}</p>
             </div>
@@ -101,14 +118,35 @@ const ResultCard: React.FC<ResultCardProps> = ({
             placeholder="Tanyakan sesuatu..."
             onKeyDown={handleKeyDown}
             disabled={isLoading}
+            className={`${
+              theme === "dark"
+                ? "bg-gray-700 text-white"
+                : "bg-white text-gray-900"
+            } border ${
+              theme === "dark" ? "border-gray-600" : "border-gray-300"
+            }`}
           />
-          <Button onClick={handleSendMessage} disabled={isLoading || input.trim() === ""}>
+          <Button
+            onClick={handleSendMessage}
+            disabled={isLoading || input.trim() === ""}
+            className={`${
+              theme === "dark"
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            } transition-colors duration-200`}
+          >
             {isLoading ? <SpinnerLoading size="small" /> : "Kirim"}
           </Button>
         </div>
       )}
       {chat.length >= 10 && (
-        <p className="text-sm text-gray-500">Batas maksimum chat tercapai.</p>
+        <p
+          className={`text-sm ${
+            theme === "dark" ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
+          Batas maksimum chat tercapai.
+        </p>
       )}
     </Card>
   );
