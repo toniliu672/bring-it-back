@@ -6,7 +6,6 @@ import {
   TextareaHTMLAttributes,
 } from "react";
 import { MotionProps } from "framer-motion";
-import { School } from "./schoolStats";
 
 // Animations
 export interface BaseAnimationProps extends MotionProps {
