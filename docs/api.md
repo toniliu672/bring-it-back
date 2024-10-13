@@ -1,168 +1,378 @@
-# API Structure Documentation
+# Dokumentasi API
 
-## Occupations
+## Autentikasi
 
-### Get All Occupations
+### Login Pengguna
 
-- **Method**: GET
-- **Path**: `/api/v1/occupations`
-- **Description**: Retrieves a list of all occupations.
-- **Query Parameters**:
-  - `page`: Page number for pagination (default: 1)
-  - `limit`: Number of items per page (default: 10)
-  - `search`: Search term for filtering occupations
+- **URL**: `/api/auth/login`
+- **Metode**: `POST`
+- **Deskripsi**: Endpoint untuk login pengguna
 
-#### Example
-```
-GET /api/v1/occupations?page=1&limit=10&search=engineer
-```
-
-### Create Occupation
-
-- **Method**: POST
-- **Path**: `/api/v1/occupations`
-- **Description**: Creates a new occupation.
-
-#### Example
-```
-POST /api/v1/occupations
-Content-Type: application/json
-
+#### Contoh Input
+```json
 {
-  "code": "SE-001",
-  "name": "Software Engineer",
-  "competencies": [
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "1",
+      "username": "johndoe",
+      "email": "user@example.com",
+      "role": "USER"
+    }
+  }
+}
+```
+
+#### Contoh Respons Gagal
+```json
+{
+  "success": false,
+  "error": "Email atau password salah"
+}
+```
+
+### Registrasi Pengguna
+
+- **URL**: `/api/auth/register`
+- **Metode**: `POST`
+- **Deskripsi**: Endpoint untuk registrasi pengguna baru
+
+#### Contoh Input
+```json
+{
+  "username": "johndoe",
+  "email": "johndoe@example.com",
+  "password": "securepassword123",
+  "role": "USER"
+}
+```
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": {
+    "id": "2",
+    "username": "johndoe",
+    "email": "johndoe@example.com",
+    "role": "USER"
+  }
+}
+```
+
+#### Contoh Respons Gagal
+```json
+{
+  "success": false,
+  "error": "Email sudah terdaftar"
+}
+```
+
+## Pengguna (Users)
+
+### Daftar Pengguna
+
+- **URL**: `/api/v1/users`
+- **Metode**: `GET`
+- **Deskripsi**: Mengambil daftar semua pengguna (hanya admin)
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": [
     {
-      "unitCode": "SE-001-01",
-      "name": "Develop software applications",
-      "standardCompetency": "Able to develop software applications using modern programming languages and frameworks"
+      "id": "1",
+      "username": "admin",
+      "email": "admin@example.com",
+      "role": "ADMIN"
+    },
+    {
+      "id": "2",
+      "username": "johndoe",
+      "email": "johndoe@example.com",
+      "role": "USER"
     }
   ]
 }
 ```
 
-### Get Occupation by ID
-
-- **Method**: GET
-- **Path**: `/api/v1/occupations/:id`
-- **Description**: Retrieves details of a specific occupation.
-
-#### Example
-```
-GET /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000
-```
-
-### Update Occupation
-
-- **Method**: PUT
-- **Path**: `/api/v1/occupations/:id`
-- **Description**: Updates an existing occupation.
-
-#### Example
-```
-PUT /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000
-Content-Type: application/json
-
+#### Contoh Respons Gagal
+```json
 {
-  "code": "SE-001-UPDATE",
-  "name": "Senior Software Engineer",
+  "success": false,
+  "error": "Unauthorized access"
+}
+```
+
+### Membuat Pengguna Baru
+
+- **URL**: `/api/v1/users`
+- **Metode**: `POST`
+- **Deskripsi**: Membuat pengguna baru (hanya admin)
+
+#### Contoh Input
+```json
+{
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "password": "newuserpassword",
+  "role": "USER"
+}
+```
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": {
+    "id": "3",
+    "username": "newuser",
+    "email": "newuser@example.com",
+    "role": "USER"
+  }
+}
+```
+
+#### Contoh Respons Gagal
+```json
+{
+  "success": false,
+  "error": "Email sudah digunakan"
+}
+```
+
+## Sekolah (Schools)
+
+### Daftar Sekolah
+
+- **URL**: `/api/v1/schools`
+- **Metode**: `GET`
+- **Deskripsi**: Mengambil daftar sekolah dengan paginasi dan filter
+- **Query Params**: 
+  - `page`: nomor halaman (default: 1)
+  - `limit`: jumlah item per halaman (default: 10)
+  - `search`: kata kunci pencarian
+  - `city`: filter berdasarkan kota
+  - `sortBy`: field untuk pengurutan (default: name)
+  - `sortOrder`: urutan ascending atau descending (default: asc)
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": {
+    "schools": [
+      {
+        "id": "1",
+        "name": "SMK Negeri 1 Manado",
+        "city": "Manado",
+        "address": "Jl. Contoh No. 123",
+        "studentCount": 1000,
+        "graduateCount": 250
+      },
+      {
+        "id": "2",
+        "name": "SMK Swasta ABC",
+        "city": "Tomohon",
+        "address": "Jl. Lainnya No. 456",
+        "studentCount": 800,
+        "graduateCount": 200
+      }
+    ],
+    "meta": {
+      "currentPage": 1,
+      "totalPages": 5,
+      "totalCount": 50,
+      "limit": 10
+    }
+  }
+}
+```
+
+#### Contoh Respons Gagal
+```json
+{
+  "success": false,
+  "error": "Terjadi kesalahan saat mengambil data sekolah"
+}
+```
+
+### Membuat Sekolah Baru
+
+- **URL**: `/api/v1/schools`
+- **Metode**: `POST`
+- **Deskripsi**: Membuat sekolah baru
+
+#### Contoh Input
+```json
+{
+  "name": "SMK Baru",
+  "city": "Bitung",
+  "address": "Jl. Pendidikan No. 789",
+  "description": "Sekolah menengah kejuruan baru di Bitung",
+  "studentCount": 500,
+  "graduateCount": 0,
+  "externalLinks": ["https://smkbaru.sch.id"],
+  "competencies": [
+    { "id": "comp1" },
+    { "id": "comp2" }
+  ],
+  "concentrations": [
+    { "id": "conc1" }
+  ]
+}
+```
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": {
+    "id": "3",
+    "name": "SMK Baru",
+    "city": "Bitung",
+    "address": "Jl. Pendidikan No. 789",
+    "description": "Sekolah menengah kejuruan baru di Bitung",
+    "studentCount": 500,
+    "graduateCount": 0,
+    "externalLinks": ["https://smkbaru.sch.id"],
+    "competencies": [
+      { "id": "comp1", "name": "Kompetensi 1" },
+      { "id": "comp2", "name": "Kompetensi 2" }
+    ],
+    "concentrations": [
+      { "id": "conc1", "name": "Konsentrasi 1" }
+    ]
+  }
+}
+```
+
+#### Contoh Respons Gagal
+```json
+{
+  "success": false,
+  "error": "Nama sekolah sudah digunakan"
+}
+```
+
+## Okupasi (Occupations)
+
+### Daftar Okupasi
+
+- **URL**: `/api/v1/occupations`
+- **Metode**: `GET`
+- **Deskripsi**: Mengambil daftar okupasi dengan paginasi dan filter
+- **Query Params**: 
+  - `page`: nomor halaman (default: 1)
+  - `limit`: jumlah item per halaman (default: 10)
+  - `searchCode`: pencarian berdasarkan kode okupasi
+  - `searchName`: pencarian berdasarkan nama okupasi
+  - `sortBy`: field untuk pengurutan (default: code)
+  - `sortOrder`: urutan ascending atau descending (default: asc)
+
+#### Contoh Respons Berhasil
+```json
+{
+  "success": true,
+  "data": {
+    "occupations": [
+      {
+        "id": "1",
+        "code": "OCC001",
+        "name": "Teknisi Komputer"
+      },
+      {
+        "id": "2",
+        "code": "OCC002",
+        "name": "Desainer Grafis"
+      }
+    ],
+    "meta": {
+      "currentPage": 1,
+      "totalPages": 3,
+      "totalCount": 25,
+      "limit": 10
+    }
+  }
+}
+```
+
+#### Contoh Respons Gagal
+```json
+{
+  "success": false,
+  "error": "Terjadi kesalahan saat mengambil data okupasi"
+}
+```
+
+### Membuat Okupasi Baru
+
+- **URL**: `/api/v1/occupations`
+- **Metode**: `POST`
+- **Deskripsi**: Membuat okupasi baru
+
+#### Contoh Input
+```json
+{
+  "code": "OCC003",
+  "name": "Programmer Web",
   "competencies": [
     {
-      "unitCode": "SE-001-01",
-      "name": "Develop complex software applications",
-      "standardCompetency": "Able to develop and architect complex software applications using advanced programming techniques"
+      "unitCode": "COMP001",
+      "name": "Pemrograman Frontend",
+      "standardCompetency": "Mampu membuat antarmuka web yang responsif"
+    },
+    {
+      "unitCode": "COMP002",
+      "name": "Pemrograman Backend",
+      "standardCompetency": "Mampu mengembangkan API RESTful"
     }
   ]
 }
 ```
 
-### Delete Occupation
-
-- **Method**: DELETE
-- **Path**: `/api/v1/occupations/:id`
-- **Description**: Deletes an occupation.
-
-#### Example
-```
-DELETE /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000
-```
-
-## Competencies
-
-### Get All Competencies for an Occupation
-
-- **Method**: GET
-- **Path**: `/api/v1/occupations/:id/competencies`
-- **Description**: Retrieves all competencies for a specific occupation.
-
-#### Example
-```
-GET /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000/competencies
-```
-
-### Create Competency for an Occupation
-
-- **Method**: POST
-- **Path**: `/api/v1/occupations/:id/competencies`
-- **Description**: Adds a new competency to a specific occupation.
-
-#### Example
-```
-POST /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000/competencies
-Content-Type: application/json
-
+#### Contoh Respons Berhasil
+```json
 {
-  "unitCode": "SE-001-02",
-  "name": "Implement security best practices",
-  "standardCompetency": "Able to implement security best practices in software development"
+  "success": true,
+  "data": {
+    "id": "3",
+    "code": "OCC003",
+    "name": "Programmer Web",
+    "competencies": [
+      {
+        "id": "comp1",
+        "unitCode": "COMP001",
+        "name": "Pemrograman Frontend",
+        "standardCompetency": "Mampu membuat antarmuka web yang responsif"
+      },
+      {
+        "id": "comp2",
+        "unitCode": "COMP002",
+        "name": "Pemrograman Backend",
+        "standardCompetency": "Mampu mengembangkan API RESTful"
+      }
+    ]
+  }
 }
 ```
 
-### Get Specific Competency for an Occupation
-
-- **Method**: GET
-- **Path**: `/api/v1/occupations/:id/competencies/:competencyId`
-- **Description**: Retrieves details of a specific competency for an occupation.
-
-#### Example
-```
-GET /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000/competencies/98765432-abcd-efgh-ijkl-123456789012
-```
-
-### Update Competency for an Occupation
-
-- **Method**: PUT
-- **Path**: `/api/v1/occupations/:id/competencies/:competencyId`
-- **Description**: Updates an existing competency for an occupation.
-
-#### Example
-```
-PUT /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000/competencies/98765432-abcd-efgh-ijkl-123456789012
-Content-Type: application/json
-
+#### Contoh Respons Gagal
+```json
 {
-  "unitCode": "SE-001-02-UPDATE",
-  "name": "Implement advanced security measures",
-  "standardCompetency": "Able to implement and maintain advanced security measures in software development"
+  "success": false,
+  "error": "Kode okupasi sudah digunakan"
 }
 ```
 
-### Delete Competency from an Occupation
-
-- **Method**: DELETE
-- **Path**: `/api/v1/occupations/:id/competencies/:competencyId`
-- **Description**: Removes a competency from an occupation.
-
-#### Example
-```
-DELETE /api/v1/occupations/123e4567-e89b-12d3-a456-426614174000/competencies/98765432-abcd-efgh-ijkl-123456789012
-```
-
-## General Notes
-
-- All endpoints return JSON responses.
-- Successful responses have a `success` field set to `true` and a `data` field containing the requested information.
-- Error responses have a `success` field set to `false`, an `error` field with an error message, and a `statusCode` field.
-- Authentication and authorization requirements are not specified in this documentation and should be implemented as needed.
-- All ID fields use UUID format.
-- Pagination is implemented for list endpoints where applicable.
+Dokumentasi ini mencakup beberapa endpoint utama dari API Anda. Untuk endpoint lainnya, Anda dapat mengikuti pola yang sama, menyertakan URL, metode, deskripsi, contoh input (jika ada), dan contoh respons berhasil dan gagal. Ini akan memberikan gambaran yang jelas kepada pengembang tentang cara menggunakan API Anda.
